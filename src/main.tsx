@@ -4,6 +4,7 @@ import {
   addTodo,
   clearCompletedTodos,
   countActiveTodos,
+  countCompletedTodos,
   countTotalTodos,
   filterTodos,
   getEmptyStateMessage,
@@ -43,7 +44,7 @@ function App() {
   const activeCount = countActiveTodos(todos);
   const totalCount = countTotalTodos(todos);
   const visibleTodos = filterTodos(todos, filter);
-  const completedCount = todos.length - activeCount;
+  const completedCount = countCompletedTodos(todos);
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(todos));
@@ -112,6 +113,9 @@ function App() {
             </p>
             <p className="active-count">
               {activeCount} {activeCount === 1 ? "item" : "items"} left
+            </p>
+            <p className="completed-count">
+              {completedCount} completed {completedCount === 1 ? "todo" : "todos"}
             </p>
           </div>
 

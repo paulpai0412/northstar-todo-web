@@ -132,7 +132,8 @@ h1 {
 }
 
 .total-count,
-.active-count {
+.active-count,
+.completed-count {
   margin: 0;
   color: #303b50;
   font-size: 0.92rem;
