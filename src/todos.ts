@@ -1,13 +1,21 @@
+export type TodoPriority = "low" | "normal" | "high";
+
 export type Todo = {
   id: string;
   text: string;
   completed: boolean;
   dueDate?: string;
+  priority: TodoPriority;
 };
 
 export type TodoFilter = "all" | "active" | "completed";
 
-export function addTodo(todos: Todo[], text: string, dueDate = ""): Todo[] {
+export function addTodo(
+  todos: Todo[],
+  text: string,
+  dueDate = "",
+  priority: TodoPriority = "normal"
+): Todo[] {
   const trimmedText = text.trim();
   const trimmedDueDate = dueDate.trim();
 
@@ -20,6 +28,7 @@ export function addTodo(todos: Todo[], text: string, dueDate = ""): Todo[] {
       id: createTodoId(),
       text: trimmedText,
       completed: false,
+      priority,
       ...(trimmedDueDate ? { dueDate: trimmedDueDate } : {})
     },
     ...todos
@@ -66,6 +75,57 @@ export function countActiveTodos(todos: Todo[]): number {
 
 export function clearCompletedTodos(todos: Todo[]): Todo[] {
   return todos.filter((todo) => !todo.completed);
+}
+
+export function normalizeTodos(value: unknown): Todo[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value.flatMap((item) => {
+    if (!isStoredTodo(item)) {
+      return [];
+    }
+
+    const priority = "priority" in item ? item.priority : "normal";
+    if (!isTodoPriority(priority)) {
+      return [];
+    }
+
+    return [
+      {
+        id: item.id,
+        text: item.text,
+        completed: item.completed,
+        priority,
+        ...("dueDate" in item && item.dueDate ? { dueDate: item.dueDate } : {})
+      }
+    ];
+  });
+}
+
+function isStoredTodo(value: unknown): value is {
+  id: string;
+  text: string;
+  completed: boolean;
+  dueDate?: string;
+  priority?: unknown;
+} {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "id" in value &&
+    "text" in value &&
+    "completed" in value &&
+    typeof value.id === "string" &&
+    typeof value.text === "string" &&
+    typeof value.completed === "boolean" &&
+    (!("dueDate" in value) || typeof value.dueDate === "string")
+  );
+}
+
+function isTodoPriority(value: unknown): value is TodoPriority {
+  return value === "low" || value === "normal" || value === "high";
 }
 
 function createTodoId(): string {
