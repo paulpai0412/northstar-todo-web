@@ -1,5 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { addTodo, isTodoOverdue, toggleTodo, type Todo } from "./todos";
+import {
+  addTodo,
+  clearCompletedTodos,
+  countActiveTodos,
+  filterTodos,
+  isTodoOverdue,
+  toggleTodo,
+  type Todo
+} from "./todos";
 
 describe("todo core logic", () => {
   it("rejects empty or whitespace-only todo text", () => {
@@ -61,5 +69,45 @@ describe("todo core logic", () => {
     expect(
       isTodoOverdue({ id: "none", text: "None", completed: false }, today)
     ).toBe(false);
+  });
+
+  it("filters todos by all, active, and completed states", () => {
+    const todos: Todo[] = [
+      { id: "first", text: "First", completed: false },
+      { id: "second", text: "Second", completed: true },
+      { id: "third", text: "Third", completed: false }
+    ];
+
+    expect(filterTodos(todos, "all")).toEqual(todos);
+    expect(filterTodos(todos, "active")).toEqual([
+      { id: "first", text: "First", completed: false },
+      { id: "third", text: "Third", completed: false }
+    ]);
+    expect(filterTodos(todos, "completed")).toEqual([
+      { id: "second", text: "Second", completed: true }
+    ]);
+  });
+
+  it("counts incomplete todos", () => {
+    const todos: Todo[] = [
+      { id: "first", text: "First", completed: false },
+      { id: "second", text: "Second", completed: true },
+      { id: "third", text: "Third", completed: false }
+    ];
+
+    expect(countActiveTodos(todos)).toBe(2);
+  });
+
+  it("clears completed todos and preserves active todos", () => {
+    const todos: Todo[] = [
+      { id: "first", text: "First", completed: false },
+      { id: "second", text: "Second", completed: true },
+      { id: "third", text: "Third", completed: false }
+    ];
+
+    expect(clearCompletedTodos(todos)).toEqual([
+      { id: "first", text: "First", completed: false },
+      { id: "third", text: "Third", completed: false }
+    ]);
   });
 });

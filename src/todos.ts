@@ -5,6 +5,8 @@ export type Todo = {
   dueDate?: string;
 };
 
+export type TodoFilter = "all" | "active" | "completed";
+
 export function addTodo(todos: Todo[], text: string, dueDate = ""): Todo[] {
   const trimmedText = text.trim();
   const trimmedDueDate = dueDate.trim();
@@ -44,6 +46,26 @@ export function formatDateInputValue(date: Date): string {
   const day = `${date.getDate()}`.padStart(2, "0");
 
   return `${year}-${month}-${day}`;
+}
+
+export function filterTodos(todos: Todo[], filter: TodoFilter): Todo[] {
+  if (filter === "active") {
+    return todos.filter((todo) => !todo.completed);
+  }
+
+  if (filter === "completed") {
+    return todos.filter((todo) => todo.completed);
+  }
+
+  return todos;
+}
+
+export function countActiveTodos(todos: Todo[]): number {
+  return todos.filter((todo) => !todo.completed).length;
+}
+
+export function clearCompletedTodos(todos: Todo[]): Todo[] {
+  return todos.filter((todo) => !todo.completed);
 }
 
 function createTodoId(): string {

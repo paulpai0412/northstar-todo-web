@@ -115,6 +115,69 @@ h1 {
   background: #24595d;
 }
 
+.todo-toolbar {
+  display: grid;
+  grid-template-columns: minmax(110px, 1fr) auto auto;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.active-count {
+  margin: 0;
+  color: #303b50;
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
+.filter-group {
+  display: inline-grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid #cfd8e6;
+  border-radius: 8px;
+  background: #f1f5f9;
+}
+
+.filter-group button,
+.clear-completed {
+  min-height: 36px;
+  border: 0;
+  border-radius: 6px;
+  color: #303b50;
+  background: transparent;
+  font-size: 0.88rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.filter-group button {
+  padding: 0 12px;
+}
+
+.filter-group button:hover,
+.filter-group button.active {
+  color: #ffffff;
+  background: #2f6f73;
+}
+
+.clear-completed {
+  padding: 0 12px;
+  border: 1px solid #cfd8e6;
+  background: #ffffff;
+}
+
+.clear-completed:hover:not(:disabled) {
+  border-color: #9caec4;
+  background: #f8fafc;
+}
+
+.clear-completed:disabled {
+  color: #9aa4b5;
+  cursor: not-allowed;
+}
+
 .todo-list {
   display: grid;
   gap: 10px;
@@ -209,5 +272,19 @@ h1 {
 
   .todo-entry button {
     min-height: 48px;
+  }
+
+  .todo-toolbar {
+    grid-template-columns: 1fr;
+    align-items: stretch;
+  }
+
+  .filter-group {
+    width: 100%;
+  }
+
+  .filter-group button,
+  .clear-completed {
+    min-height: 42px;
   }
 }
