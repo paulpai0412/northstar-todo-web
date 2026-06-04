@@ -32,6 +32,18 @@ export function toggleTodo(todos: Todo[], id: string): Todo[] {
   );
 }
 
+export function editTodoText(todos: Todo[], id: string, text: string): Todo[] {
+  const trimmedText = text.trim();
+
+  if (!trimmedText) {
+    return todos;
+  }
+
+  return todos.map((todo) =>
+    todo.id === id ? { ...todo, text: trimmedText } : todo
+  );
+}
+
 export function isTodoOverdue(todo: Todo, today = new Date()): boolean {
   if (todo.completed || !todo.dueDate) {
     return false;

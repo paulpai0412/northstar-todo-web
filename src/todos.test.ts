@@ -3,6 +3,7 @@ import {
   addTodo,
   clearCompletedTodos,
   countActiveTodos,
+  editTodoText,
   filterTodos,
   isTodoOverdue,
   toggleTodo,
@@ -43,6 +44,26 @@ describe("todo core logic", () => {
       { id: "first", text: "First", completed: true, dueDate: "2026-06-12" },
       { id: "second", text: "Second", completed: true }
     ]);
+  });
+
+  it("edits todo text and preserves completion and due-date data", () => {
+    const todos: Todo[] = [
+      { id: "first", text: "First", completed: true, dueDate: "2026-06-12" },
+      { id: "second", text: "Second", completed: false }
+    ];
+
+    expect(editTodoText(todos, "first", "  Updated first  ")).toEqual([
+      { id: "first", text: "Updated first", completed: true, dueDate: "2026-06-12" },
+      { id: "second", text: "Second", completed: false }
+    ]);
+  });
+
+  it("rejects empty edited todo text without deleting or changing the todo", () => {
+    const todos: Todo[] = [
+      { id: "first", text: "First", completed: false, dueDate: "2026-06-12" }
+    ];
+
+    expect(editTodoText(todos, "first", "   ")).toEqual(todos);
   });
 
   it("marks only active todos with past due dates as overdue", () => {

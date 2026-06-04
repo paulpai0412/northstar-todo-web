@@ -193,16 +193,15 @@ h1 {
   background: #f8fafc;
 }
 
-.todo-item label {
+.todo-row {
   display: grid;
-  grid-template-columns: auto 1fr;
+  grid-template-columns: auto minmax(0, 1fr) auto;
   gap: 12px;
   align-items: center;
   padding: 14px 16px;
-  cursor: pointer;
 }
 
-.todo-item input {
+.todo-row > input {
   width: 18px;
   height: 18px;
   accent-color: #2f6f73;
@@ -251,6 +250,64 @@ h1 {
   color: #7b8495;
 }
 
+.edit-button,
+.edit-form button {
+  min-height: 34px;
+  padding: 0 12px;
+  border: 1px solid #cfd8e6;
+  border-radius: 6px;
+  color: #303b50;
+  background: #ffffff;
+  font-size: 0.86rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.edit-button:hover,
+.edit-form button:hover:not(:disabled) {
+  border-color: #9caec4;
+  background: #eef3f4;
+}
+
+.edit-form {
+  display: grid;
+  grid-column: 2 / -1;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 8px;
+  align-items: center;
+}
+
+.edit-form input {
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1px solid #b9c3d3;
+  border-radius: 8px;
+  color: #182033;
+  background: #ffffff;
+}
+
+.edit-form input:focus {
+  border-color: #2f6f73;
+  outline: 3px solid rgb(47 111 115 / 18%);
+}
+
+.edit-form button[type="submit"] {
+  color: #ffffff;
+  border-color: #2f6f73;
+  background: #2f6f73;
+}
+
+.edit-form button[type="submit"]:hover:not(:disabled) {
+  border-color: #24595d;
+  background: #24595d;
+}
+
+.edit-form button:disabled {
+  color: #9aa4b5;
+  cursor: not-allowed;
+  background: #f8fafc;
+}
+
 .empty-state {
   padding: 18px 16px;
   color: #6d7688;
@@ -286,5 +343,20 @@ h1 {
   .filter-group button,
   .clear-completed {
     min-height: 42px;
+  }
+
+  .todo-row,
+  .edit-form {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .todo-content,
+  .edit-form input {
+    grid-column: 2 / -1;
+  }
+
+  .edit-button,
+  .edit-form button {
+    grid-column: 2 / -1;
   }
 }
