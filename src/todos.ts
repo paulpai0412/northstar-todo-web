@@ -4,6 +4,7 @@ export type Todo = {
   id: string;
   text: string;
   completed: boolean;
+  createdAt?: string;
   dueDate?: string;
   priority: TodoPriority;
 };
@@ -14,7 +15,8 @@ export function addTodo(
   todos: Todo[],
   text: string,
   dueDate = "",
-  priority: TodoPriority = "normal"
+  priority: TodoPriority = "normal",
+  createdAt = new Date()
 ): Todo[] {
   const trimmedText = text.trim();
   const trimmedDueDate = dueDate.trim();
@@ -28,6 +30,7 @@ export function addTodo(
       id: createTodoId(),
       text: trimmedText,
       completed: false,
+      createdAt: createdAt.toISOString(),
       priority,
       ...(trimmedDueDate ? { dueDate: trimmedDueDate } : {})
     },
@@ -98,6 +101,9 @@ export function normalizeTodos(value: unknown): Todo[] {
         text: item.text,
         completed: item.completed,
         priority,
+        ...("createdAt" in item && item.createdAt
+          ? { createdAt: item.createdAt }
+          : {}),
         ...("dueDate" in item && item.dueDate ? { dueDate: item.dueDate } : {})
       }
     ];
@@ -108,6 +114,7 @@ function isStoredTodo(value: unknown): value is {
   id: string;
   text: string;
   completed: boolean;
+  createdAt?: string;
   dueDate?: string;
   priority?: unknown;
 } {
@@ -120,6 +127,7 @@ function isStoredTodo(value: unknown): value is {
     typeof value.id === "string" &&
     typeof value.text === "string" &&
     typeof value.completed === "boolean" &&
+    (!("createdAt" in value) || typeof value.createdAt === "string") &&
     (!("dueDate" in value) || typeof value.dueDate === "string")
   );
 }

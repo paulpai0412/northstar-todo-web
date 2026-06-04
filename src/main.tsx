@@ -162,6 +162,11 @@ function App() {
                         <span className="priority-label">
                           {PRIORITY_LABELS[todo.priority]} priority
                         </span>
+                        {todo.createdAt ? (
+                          <span className="created-at">
+                            Added {formatCreatedAt(todo.createdAt)}
+                          </span>
+                        ) : null}
                         {todo.dueDate ? (
                           <span className="due-date">
                             Due {formatDueDate(todo.dueDate)}
@@ -201,6 +206,22 @@ function formatDueDate(dueDate: string): string {
     month: "short",
     day: "numeric",
     year: "numeric"
+  }).format(date);
+}
+
+function formatCreatedAt(createdAt: string): string {
+  const date = new Date(createdAt);
+
+  if (Number.isNaN(date.getTime())) {
+    return "unknown";
+  }
+
+  return new Intl.DateTimeFormat(undefined, {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit"
   }).format(date);
 }
 
