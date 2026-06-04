@@ -19,12 +19,19 @@ describe("todo core logic", () => {
   });
 
   it("adds trimmed todo text as an incomplete item", () => {
-    const [todo] = addTodo([], "  Write tests  ");
+    const [todo] = addTodo(
+      [],
+      "  Write tests  ",
+      "",
+      "normal",
+      new Date("2026-06-04T10:30:00.000Z")
+    );
 
     expect(todo.text).toBe("Write tests");
     expect(todo.completed).toBe(false);
     expect(todo.dueDate).toBeUndefined();
     expect(todo.priority).toBe("normal");
+    expect(todo.createdAt).toBe("2026-06-04T10:30:00.000Z");
     expect(todo.id).toEqual(expect.any(String));
   });
 
@@ -158,13 +165,25 @@ describe("todo core logic", () => {
   it("normalizes stored todos with valid priority data", () => {
     expect(
       normalizeTodos([
-        { id: "high", text: "High", completed: false, priority: "high" },
+        {
+          id: "high",
+          text: "High",
+          completed: false,
+          priority: "high",
+          createdAt: "2026-06-04T10:30:00.000Z"
+        },
         { id: "low", text: "Low", completed: false, priority: "low" },
         { id: "legacy", text: "Legacy", completed: true },
         { id: "bad", text: "Bad", completed: false, priority: "urgent" }
       ])
     ).toEqual([
-      { id: "high", text: "High", completed: false, priority: "high" },
+      {
+        id: "high",
+        text: "High",
+        completed: false,
+        priority: "high",
+        createdAt: "2026-06-04T10:30:00.000Z"
+      },
       { id: "low", text: "Low", completed: false, priority: "low" },
       { id: "legacy", text: "Legacy", completed: true, priority: "normal" }
     ]);
