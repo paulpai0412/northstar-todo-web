@@ -6,6 +6,7 @@ import {
   countActiveTodos,
   countTotalTodos,
   filterTodos,
+  getEmptyStateMessage,
   isTodoOverdue,
   normalizeTodos,
   toggleTodo,
@@ -140,7 +141,7 @@ function App() {
 
         <ul className="todo-list" aria-label="Todo list">
           {visibleTodos.length === 0 ? (
-            <li className="empty-state">No todos yet.</li>
+            <li className="empty-state">{getEmptyStateMessage(filter)}</li>
           ) : (
             visibleTodos.map((todo) => {
               const overdue = isTodoOverdue(todo);

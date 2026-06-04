@@ -72,6 +72,18 @@ export function filterTodos(todos: Todo[], filter: TodoFilter): Todo[] {
   return todos;
 }
 
+export function getEmptyStateMessage(filter: TodoFilter): string {
+  if (filter === "active") {
+    return "No active todos.";
+  }
+
+  if (filter === "completed") {
+    return "No completed todos yet.";
+  }
+
+  return "No todos yet. Add one above.";
+}
+
 export function countActiveTodos(todos: Todo[]): number {
   return todos.filter((todo) => !todo.completed).length;
 }
