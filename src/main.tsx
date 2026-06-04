@@ -4,6 +4,7 @@ import {
   addTodo,
   clearCompletedTodos,
   countActiveTodos,
+  countTotalTodos,
   filterTodos,
   isTodoOverdue,
   normalizeTodos,
@@ -39,6 +40,7 @@ function App() {
   const [filter, setFilter] = useState<TodoFilter>("all");
 
   const activeCount = countActiveTodos(todos);
+  const totalCount = countTotalTodos(todos);
   const visibleTodos = filterTodos(todos, filter);
   const completedCount = todos.length - activeCount;
 
@@ -103,9 +105,14 @@ function App() {
         </form>
 
         <div className="todo-toolbar" aria-label="Todo controls">
-          <p className="active-count" aria-live="polite">
-            {activeCount} {activeCount === 1 ? "item" : "items"} left
-          </p>
+          <div className="todo-counts" aria-live="polite">
+            <p className="total-count">
+              {totalCount} total {totalCount === 1 ? "todo" : "todos"}
+            </p>
+            <p className="active-count">
+              {activeCount} {activeCount === 1 ? "item" : "items"} left
+            </p>
+          </div>
 
           <div className="filter-group" aria-label="Filter todos">
             {FILTER_OPTIONS.map((option) => (

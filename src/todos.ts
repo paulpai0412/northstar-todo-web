@@ -76,6 +76,10 @@ export function countActiveTodos(todos: Todo[]): number {
   return todos.filter((todo) => !todo.completed).length;
 }
 
+export function countTotalTodos(todos: Todo[]): number {
+  return todos.length;
+}
+
 export function clearCompletedTodos(todos: Todo[]): Todo[] {
   return todos.filter((todo) => !todo.completed);
 }
