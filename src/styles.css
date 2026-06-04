@@ -83,7 +83,7 @@ h1 {
 
 .todo-entry {
   display: grid;
-  grid-template-columns: 1fr auto;
+  grid-template-columns: minmax(0, 1fr) minmax(150px, auto) auto;
   gap: 10px;
 }
 
@@ -145,20 +145,47 @@ h1 {
   accent-color: #2f6f73;
 }
 
-.todo-item span {
+.todo-content {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.todo-text {
   overflow-wrap: anywhere;
   color: #182033;
   font-weight: 650;
   line-height: 1.45;
 }
 
+.due-date {
+  width: fit-content;
+  color: #4f6476;
+  font-size: 0.82rem;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.todo-item.overdue {
+  border-color: #d44f38;
+  background: #fff6f3;
+}
+
+.todo-item.overdue .due-date {
+  color: #aa321f;
+}
+
 .todo-item.completed {
   background: #eef3f4;
 }
 
-.todo-item.completed span {
+.todo-item.completed .todo-text {
   color: #7b8495;
   text-decoration: line-through;
+}
+
+.todo-item.completed .due-date {
+  color: #7b8495;
 }
 
 .empty-state {
