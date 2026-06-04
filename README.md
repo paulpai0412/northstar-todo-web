@@ -6,8 +6,9 @@ The todo form accepts required todo text and an optional due date. Todos with
 due dates show a readable due-date label in the list. Active todos whose due
 date is before today are visually marked as overdue; completing the todo removes
 the overdue styling. The list can be filtered by All, Active, and Completed,
-shows the active todo count, can clear completed todos, and persists todo text,
-completion state, and due dates in localStorage after refresh.
+shows the total todo count and active todo count, can clear completed todos, and
+persists todo text, completion state, due dates, and the derived total count in
+localStorage after refresh.
 
 ## Local Setup
 
@@ -36,12 +37,13 @@ Manual browser checks:
 
 1. Load `/` and confirm the `Todo Web` title is visible.
 2. Add at least two todos with non-empty text and confirm they appear immediately.
-3. Add a todo with a future due date and confirm the readable due-date label appears.
-4. Add an active todo with a past due date and confirm it is visually marked overdue.
-5. Complete one todo and confirm the active count decreases and overdue styling is removed.
-6. Switch between All, Active, and Completed filters and confirm each list matches
+3. Confirm the total todo count increases after each todo is added.
+4. Add a todo with a future due date and confirm the readable due-date label appears.
+5. Add an active todo with a past due date and confirm it is visually marked overdue.
+6. Complete one todo and confirm the active count decreases and overdue styling is removed.
+7. Switch between All, Active, and Completed filters and confirm each list matches
    the selected state.
-7. Clear completed todos and confirm active todos remain.
-8. Refresh the page and confirm the persisted todos, due dates, and completion
-   state remain correct.
-9. Try submitting an empty or whitespace-only todo and confirm no item is added.
+8. Clear completed todos and confirm active todos remain and the total count decreases.
+9. Refresh the page and confirm the persisted todos, due dates, completion state,
+   and total count remain correct.
+10. Try submitting an empty or whitespace-only todo and confirm no item is added.
