@@ -1,6 +1,6 @@
 import { FormEvent, useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
-import { addTodo, toggleTodo, type Todo } from "./todos";
+import { addTodo, isTodoOverdue, toggleTodo, type Todo } from "./todos";
 import "./styles.css";
 
 const STORAGE_KEY = "northstar-todo-web.todos";
@@ -8,6 +8,7 @@ const STORAGE_KEY = "northstar-todo-web.todos";
 function App() {
   const [todos, setTodos] = useState<Todo[]>(() => loadTodos());
   const [todoText, setTodoText] = useState("");
+  const [dueDate, setDueDate] = useState("");
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(todos));
@@ -16,9 +17,10 @@ function App() {
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    setTodos((currentTodos) => addTodo(currentTodos, todoText));
+    setTodos((currentTodos) => addTodo(currentTodos, todoText, dueDate));
     if (todoText.trim()) {
       setTodoText("");
+      setDueDate("");
     }
   }
 
@@ -44,6 +46,13 @@ function App() {
               placeholder="Add a task"
               autoComplete="off"
             />
+            <input
+              id="todo-due-date"
+              type="date"
+              value={dueDate}
+              onChange={(event) => setDueDate(event.target.value)}
+              aria-label="Due date"
+            />
             <button type="submit">Add</button>
           </div>
         </form>
@@ -52,23 +61,38 @@ function App() {
           {todos.length === 0 ? (
             <li className="empty-state">No todos yet.</li>
           ) : (
-            todos.map((todo) => (
-              <li
-                className={todo.completed ? "todo-item completed" : "todo-item"}
-                key={todo.id}
-              >
-                <label>
-                  <input
-                    type="checkbox"
-                    checked={todo.completed}
-                    onChange={() =>
-                      setTodos((currentTodos) => toggleTodo(currentTodos, todo.id))
-                    }
-                  />
-                  <span>{todo.text}</span>
-                </label>
-              </li>
-            ))
+            todos.map((todo) => {
+              const overdue = isTodoOverdue(todo);
+              const itemClassName = [
+                "todo-item",
+                todo.completed ? "completed" : "",
+                overdue ? "overdue" : ""
+              ]
+                .filter(Boolean)
+                .join(" ");
+
+              return (
+                <li className={itemClassName} key={todo.id}>
+                  <label>
+                    <input
+                      type="checkbox"
+                      checked={todo.completed}
+                      onChange={() =>
+                        setTodos((currentTodos) => toggleTodo(currentTodos, todo.id))
+                      }
+                    />
+                    <span className="todo-content">
+                      <span className="todo-text">{todo.text}</span>
+                      {todo.dueDate ? (
+                        <span className="due-date">
+                          Due {formatDueDate(todo.dueDate)}
+                        </span>
+                      ) : null}
+                    </span>
+                  </label>
+                </li>
+              );
+            })
           )}
         </ul>
       </section>
@@ -103,8 +127,20 @@ function isTodo(value: unknown): value is Todo {
     "completed" in value &&
     typeof value.id === "string" &&
     typeof value.text === "string" &&
-    typeof value.completed === "boolean"
+    typeof value.completed === "boolean" &&
+    (!("dueDate" in value) || typeof value.dueDate === "string")
   );
+}
+
+function formatDueDate(dueDate: string): string {
+  const [year, month, day] = dueDate.split("-").map(Number);
+  const date = new Date(year, month - 1, day);
+
+  return new Intl.DateTimeFormat(undefined, {
+    month: "short",
+    day: "numeric",
+    year: "numeric"
+  }).format(date);
 }
 
 createRoot(document.getElementById("root")!).render(<App />);
