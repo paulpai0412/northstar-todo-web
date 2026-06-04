@@ -3,6 +3,7 @@ import {
   addTodo,
   clearCompletedTodos,
   countActiveTodos,
+  countCompletedTodos,
   countTotalTodos,
   filterTodos,
   getEmptyStateMessage,
@@ -165,6 +166,16 @@ describe("todo core logic", () => {
     ];
 
     expect(countTotalTodos(todos)).toBe(3);
+  });
+
+  it("counts completed todos", () => {
+    const todos: Todo[] = [
+      { id: "first", text: "First", completed: false, priority: "high" },
+      { id: "second", text: "Second", completed: true, priority: "normal" },
+      { id: "third", text: "Third", completed: true, priority: "low" }
+    ];
+
+    expect(countCompletedTodos(todos)).toBe(2);
   });
 
   it("clears completed todos and preserves active todos", () => {
