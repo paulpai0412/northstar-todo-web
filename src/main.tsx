@@ -1,14 +1,33 @@
 import { FormEvent, useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
-import { addTodo, isTodoOverdue, toggleTodo, type Todo } from "./todos";
+import {
+  addTodo,
+  clearCompletedTodos,
+  countActiveTodos,
+  filterTodos,
+  isTodoOverdue,
+  toggleTodo,
+  type Todo,
+  type TodoFilter
+} from "./todos";
 import "./styles.css";
 
 const STORAGE_KEY = "northstar-todo-web.todos";
+const FILTER_OPTIONS: { value: TodoFilter; label: string }[] = [
+  { value: "all", label: "All" },
+  { value: "active", label: "Active" },
+  { value: "completed", label: "Completed" }
+];
 
 function App() {
   const [todos, setTodos] = useState<Todo[]>(() => loadTodos());
   const [todoText, setTodoText] = useState("");
   const [dueDate, setDueDate] = useState("");
+  const [filter, setFilter] = useState<TodoFilter>("all");
+
+  const activeCount = countActiveTodos(todos);
+  const visibleTodos = filterTodos(todos, filter);
+  const completedCount = todos.length - activeCount;
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(todos));
@@ -57,11 +76,40 @@ function App() {
           </div>
         </form>
 
+        <div className="todo-toolbar" aria-label="Todo controls">
+          <p className="active-count" aria-live="polite">
+            {activeCount} {activeCount === 1 ? "item" : "items"} left
+          </p>
+
+          <div className="filter-group" aria-label="Filter todos">
+            {FILTER_OPTIONS.map((option) => (
+              <button
+                key={option.value}
+                type="button"
+                className={filter === option.value ? "active" : undefined}
+                aria-pressed={filter === option.value}
+                onClick={() => setFilter(option.value)}
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
+
+          <button
+            type="button"
+            className="clear-completed"
+            disabled={completedCount === 0}
+            onClick={() => setTodos((currentTodos) => clearCompletedTodos(currentTodos))}
+          >
+            Clear completed
+          </button>
+        </div>
+
         <ul className="todo-list" aria-label="Todo list">
-          {todos.length === 0 ? (
+          {visibleTodos.length === 0 ? (
             <li className="empty-state">No todos yet.</li>
           ) : (
-            todos.map((todo) => {
+            visibleTodos.map((todo) => {
               const overdue = isTodoOverdue(todo);
               const itemClassName = [
                 "todo-item",
