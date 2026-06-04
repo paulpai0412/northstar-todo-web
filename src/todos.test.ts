@@ -5,6 +5,7 @@ import {
   countActiveTodos,
   countTotalTodos,
   filterTodos,
+  getEmptyStateMessage,
   isTodoOverdue,
   normalizeTodos,
   toggleTodo,
@@ -138,6 +139,12 @@ describe("todo core logic", () => {
     expect(filterTodos(todos, "completed")).toEqual([
       { id: "second", text: "Second", completed: true, priority: "normal" }
     ]);
+  });
+
+  it("returns an empty-state message for each filter", () => {
+    expect(getEmptyStateMessage("all")).toBe("No todos yet. Add one above.");
+    expect(getEmptyStateMessage("active")).toBe("No active todos.");
+    expect(getEmptyStateMessage("completed")).toBe("No completed todos yet.");
   });
 
   it("counts incomplete todos", () => {
