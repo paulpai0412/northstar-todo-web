@@ -7,6 +7,8 @@
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
+  --focus-ring-color: rgb(47 111 115 / 28%);
+  --focus-ring-outline: 3px solid var(--focus-ring-color);
 }
 
 * {
@@ -98,10 +100,12 @@ h1 {
   background: #ffffff;
 }
 
-.todo-entry input:focus,
-.todo-entry select:focus {
+.todo-entry input:focus-visible,
+.todo-entry select:focus-visible,
+.todo-entry button:focus-visible {
   border-color: #2f6f73;
-  outline: 3px solid rgb(47 111 115 / 18%);
+  outline: var(--focus-ring-outline);
+  outline-offset: 0;
 }
 
 .todo-entry button {
@@ -221,10 +225,25 @@ h1 {
   accent-color: #2f6f73;
 }
 
+.todo-row > input:focus-visible {
+  outline: var(--focus-ring-outline);
+  outline-offset: 3px;
+}
+
+.todo-row > input:focus-visible + .todo-content-label {
+  outline: var(--focus-ring-outline);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
 .todo-content {
   display: grid;
   gap: 6px;
   min-width: 0;
+}
+
+.todo-content-label {
+  cursor: pointer;
 }
 
 .todo-text {
@@ -345,9 +364,9 @@ h1 {
   background: #ffffff;
 }
 
-.edit-form input:focus {
+.edit-form input:focus-visible {
   border-color: #2f6f73;
-  outline: 3px solid rgb(47 111 115 / 18%);
+  outline: var(--focus-ring-outline);
 }
 
 .edit-form button[type="submit"] {
