@@ -9,9 +9,11 @@ import {
   filterTodos,
   getEmptyStateMessage,
   getVisibleTodos,
+  getTodoDueDateSummary,
   getTodoProgress,
   isTodoOverdue,
   normalizeTodos,
+  todoMatchesTextQuery,
   toggleTodo,
   type Todo
 } from "./todos";
@@ -168,6 +170,59 @@ describe("todo core logic", () => {
     ).toBe(false);
   });
 
+  it("matches all todos when query is empty or whitespace only", () => {
+    const todo: Todo = {
+      id: "todo",
+      text: "Review release notes",
+      completed: true,
+      createdAt: "2026-06-04T10:30:00.000Z",
+      dueDate: "2026-06-12",
+      priority: "high"
+    };
+
+    expect(todoMatchesTextQuery(todo, "")).toBe(true);
+    expect(todoMatchesTextQuery(todo, "   ")).toBe(true);
+  });
+
+  it("matches todo text case-insensitively and trims query", () => {
+    const todo: Todo = {
+      id: "todo",
+      text: "Review release notes",
+      completed: false,
+      priority: "normal"
+    };
+
+    expect(todoMatchesTextQuery(todo, "REVIEW")).toBe(true);
+    expect(todoMatchesTextQuery(todo, "  notes  ")).toBe(true);
+  });
+
+  it("returns false when todo text does not include the query", () => {
+    const todo: Todo = {
+      id: "todo",
+      text: "Review release notes",
+      completed: false,
+      priority: "normal"
+    };
+
+    expect(todoMatchesTextQuery(todo, "meeting")).toBe(false);
+  });
+
+  it("does not mutate the todo while matching text queries", () => {
+    const todo: Todo = {
+      id: "todo",
+      text: "Review release notes",
+      completed: true,
+      createdAt: "2026-06-04T10:30:00.000Z",
+      dueDate: "2026-06-12",
+      priority: "high"
+    };
+    const originalTodo = { ...todo };
+
+    todoMatchesTextQuery(todo, "review");
+
+    expect(todo).toEqual(originalTodo);
+  });
+
   it("filters todos by all, active, and completed states", () => {
     const todos: Todo[] = [
       { id: "first", text: "First", completed: false, priority: "high" },
@@ -208,6 +263,75 @@ describe("todo core logic", () => {
     expect(getEmptyStateMessage("all")).toBe("No todos yet. Add one above.");
     expect(getEmptyStateMessage("active")).toBe("No active todos.");
     expect(getEmptyStateMessage("completed")).toBe("No completed todos yet.");
+  });
+
+  it("returns zero due-date summary counts for empty todo input", () => {
+    expect(getTodoDueDateSummary([])).toEqual({
+      withDueDate: 0,
+      withoutDueDate: 0
+    });
+  });
+
+  it("summarizes due-date coverage for mixed due and no-due todos", () => {
+    const todos: Todo[] = [
+      {
+        id: "first",
+        text: "First",
+        completed: false,
+        dueDate: "2026-06-12",
+        priority: "high",
+        createdAt: "2026-06-01T10:00:00.000Z"
+      },
+      {
+        id: "second",
+        text: "Second",
+        completed: true,
+        priority: "normal",
+        createdAt: "2026-06-02T10:00:00.000Z"
+      },
+      {
+        id: "third",
+        text: "Third",
+        completed: true,
+        dueDate: "2026-06-20",
+        priority: "low"
+      },
+      {
+        id: "fourth",
+        text: "Fourth",
+        completed: false,
+        priority: "high"
+      }
+    ];
+
+    expect(getTodoDueDateSummary(todos)).toEqual({
+      withDueDate: 2,
+      withoutDueDate: 2
+    });
+  });
+
+  it("summarizes all todos as due when each todo has a due date", () => {
+    const todos: Todo[] = [
+      {
+        id: "first",
+        text: "First",
+        completed: false,
+        dueDate: "2026-06-12",
+        priority: "high"
+      },
+      {
+        id: "second",
+        text: "Second",
+        completed: true,
+        dueDate: "2026-06-15",
+        priority: "normal"
+      }
+    ];
+
+    expect(getTodoDueDateSummary(todos)).toEqual({
+      withDueDate: 2,
+      withoutDueDate: 0
+    });
   });
 
   it("counts incomplete todos", () => {

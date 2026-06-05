@@ -1,0 +1,3 @@
+Issue 40: Add empty-list hint
+
+This file was added by the implementation worker to create a PR for issue #40.

@@ -72,6 +72,16 @@ export function formatDateInputValue(date: Date): string {
   return `${year}-${month}-${day}`;
 }
 
+export function todoMatchesTextQuery(todo: Todo, query: string): boolean {
+  const normalizedQuery = query.trim().toLocaleLowerCase();
+
+  if (!normalizedQuery) {
+    return true;
+  }
+
+  return todo.text.toLocaleLowerCase().includes(normalizedQuery);
+}
+
 export function filterTodos(todos: Todo[], filter: TodoFilter): Todo[] {
   if (filter === "active") {
     return todos.filter((todo) => !todo.completed);
@@ -120,6 +130,22 @@ export function countTotalTodos(todos: Todo[]): number {
 
 export function countCompletedTodos(todos: Todo[]): number {
   return todos.filter((todo) => todo.completed).length;
+}
+
+export type TodoDueDateSummary = {
+  withDueDate: number;
+  withoutDueDate: number;
+};
+
+export function getTodoDueDateSummary(todos: Todo[]): TodoDueDateSummary {
+  const withDueDate = todos.filter(
+    (todo) => typeof todo.dueDate === "string" && todo.dueDate.trim().length > 0
+  ).length;
+
+  return {
+    withDueDate,
+    withoutDueDate: todos.length - withDueDate
+  };
 }
 
 export type TodoProgress = {
