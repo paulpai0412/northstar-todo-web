@@ -1,4 +1,4 @@
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import {
   addTodo,
@@ -32,6 +32,7 @@ const PRIORITY_LABELS: Record<TodoPriority, string> = {
   normal: "Normal",
   high: "High"
 };
+const QUICK_ADD_EXAMPLES = ["Buy groceries", "Review notes", "Plan tomorrow"];
 
 function App() {
   const [todos, setTodos] = useState<Todo[]>(() => loadTodos());
@@ -42,6 +43,7 @@ function App() {
   const [hideCompleted, setHideCompleted] = useState(false);
   const [editingTodoId, setEditingTodoId] = useState<string | null>(null);
   const [editingTodoText, setEditingTodoText] = useState("");
+  const todoInputRef = useRef<HTMLInputElement>(null);
 
   const { total: totalCount, active: activeCount, completed: completedCount } =
     getTodoProgress(todos);
@@ -104,6 +106,7 @@ function App() {
           <div className="todo-entry">
             <input
               id="todo-input"
+              ref={todoInputRef}
               type="text"
               value={todoText}
               onChange={(event) => setTodoText(event.target.value)}
@@ -130,6 +133,22 @@ function App() {
               ))}
             </select>
             <button type="submit">Add</button>
+          </div>
+          <div className="quick-add-row" aria-label="Quick add examples">
+            <span className="quick-add-label">Try:</span>
+            {QUICK_ADD_EXAMPLES.map((example) => (
+              <button
+                key={example}
+                type="button"
+                className="quick-add-button"
+                onClick={() => {
+                  setTodoText(example);
+                  todoInputRef.current?.focus();
+                }}
+              >
+                {example}
+              </button>
+            ))}
           </div>
         </form>
 

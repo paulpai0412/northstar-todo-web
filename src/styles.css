@@ -122,6 +122,41 @@ h1 {
   background: #24595d;
 }
 
+.quick-add-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.quick-add-label {
+  color: #576176;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.quick-add-button {
+  min-height: 30px;
+  padding: 0 10px;
+  border: 1px solid #cfd8e6;
+  border-radius: 999px;
+  color: #303b50;
+  background: #ffffff;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.quick-add-button:hover {
+  border-color: #9caec4;
+  background: #eef3f4;
+}
+
+.quick-add-button:focus-visible {
+  border-color: #2f6f73;
+  outline: var(--focus-ring-outline);
+}
+
 .todo-toolbar {
   display: grid;
   grid-template-columns: minmax(130px, 1fr) auto auto auto;
