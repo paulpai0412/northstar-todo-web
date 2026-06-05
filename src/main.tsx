@@ -157,6 +157,9 @@ function App() {
             <p className="progress-summary">
               {totalCount} total, {activeCount} active, {completedCount} completed
             </p>
+            <p className="counts-summary-short" aria-hidden="true">
+              {activeCount} active • {completedCount} completed
+            </p>
           </div>
 
           <div className="filter-group" aria-label="Filter todos">

@@ -177,6 +177,12 @@ h1 {
   font-weight: 700;
 }
 
+.counts-summary-short {
+  margin: 0;
+  color: #576176;
+  font-size: 0.82rem;
+}
+
 .filter-group {
   display: inline-grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
