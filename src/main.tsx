@@ -57,6 +57,10 @@ function App() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(todos));
   }, [todos]);
 
+  useEffect(() => {
+    document.title = getDocumentTitle(activeCount);
+  }, [activeCount]);
+
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
@@ -281,6 +285,14 @@ function App() {
       </section>
     </main>
   );
+}
+
+function getDocumentTitle(activeCount: number): string {
+  if (activeCount === 0) {
+    return "Todo Web";
+  }
+
+  return `Todo Web (${activeCount} active)`;
 }
 
 function loadTodos(): Todo[] {
