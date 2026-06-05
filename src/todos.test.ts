@@ -12,6 +12,7 @@ import {
   getTodoProgress,
   isTodoOverdue,
   normalizeTodos,
+  todoMatchesTextQuery,
   toggleTodo,
   type Todo
 } from "./todos";
@@ -166,6 +167,59 @@ describe("todo core logic", () => {
         today
       )
     ).toBe(false);
+  });
+
+  it("matches all todos when query is empty or whitespace only", () => {
+    const todo: Todo = {
+      id: "todo",
+      text: "Review release notes",
+      completed: true,
+      createdAt: "2026-06-04T10:30:00.000Z",
+      dueDate: "2026-06-12",
+      priority: "high"
+    };
+
+    expect(todoMatchesTextQuery(todo, "")).toBe(true);
+    expect(todoMatchesTextQuery(todo, "   ")).toBe(true);
+  });
+
+  it("matches todo text case-insensitively and trims query", () => {
+    const todo: Todo = {
+      id: "todo",
+      text: "Review release notes",
+      completed: false,
+      priority: "normal"
+    };
+
+    expect(todoMatchesTextQuery(todo, "REVIEW")).toBe(true);
+    expect(todoMatchesTextQuery(todo, "  notes  ")).toBe(true);
+  });
+
+  it("returns false when todo text does not include the query", () => {
+    const todo: Todo = {
+      id: "todo",
+      text: "Review release notes",
+      completed: false,
+      priority: "normal"
+    };
+
+    expect(todoMatchesTextQuery(todo, "meeting")).toBe(false);
+  });
+
+  it("does not mutate the todo while matching text queries", () => {
+    const todo: Todo = {
+      id: "todo",
+      text: "Review release notes",
+      completed: true,
+      createdAt: "2026-06-04T10:30:00.000Z",
+      dueDate: "2026-06-12",
+      priority: "high"
+    };
+    const originalTodo = { ...todo };
+
+    todoMatchesTextQuery(todo, "review");
+
+    expect(todo).toEqual(originalTodo);
   });
 
   it("filters todos by all, active, and completed states", () => {
