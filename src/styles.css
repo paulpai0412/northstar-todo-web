@@ -20,7 +20,8 @@ body {
 }
 
 button,
-input {
+input,
+select {
   font: inherit;
 }
 
@@ -83,11 +84,12 @@ h1 {
 
 .todo-entry {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(150px, auto) auto;
+  grid-template-columns: minmax(0, 1fr) minmax(150px, auto) minmax(120px, auto) auto;
   gap: 10px;
 }
 
-.todo-entry input {
+.todo-entry input,
+.todo-entry select {
   min-width: 0;
   padding: 14px 16px;
   border: 1px solid #b9c3d3;
@@ -96,7 +98,8 @@ h1 {
   background: #ffffff;
 }
 
-.todo-entry input:focus {
+.todo-entry input:focus,
+.todo-entry select:focus {
   border-color: #2f6f73;
   outline: 3px solid rgb(47 111 115 / 18%);
 }
@@ -117,17 +120,28 @@ h1 {
 
 .todo-toolbar {
   display: grid;
-  grid-template-columns: minmax(110px, 1fr) auto auto;
+  grid-template-columns: minmax(130px, 1fr) auto auto;
   gap: 12px;
   align-items: center;
   margin-bottom: 18px;
 }
 
-.active-count {
+.todo-counts {
+  display: grid;
+  gap: 3px;
+}
+
+.total-count,
+.active-count,
+.completed-count {
   margin: 0;
   color: #303b50;
   font-size: 0.92rem;
   font-weight: 700;
+}
+
+.total-count {
+  color: #182033;
 }
 
 .filter-group {
@@ -209,7 +223,7 @@ h1 {
 
 .todo-content {
   display: grid;
-  gap: 4px;
+  gap: 6px;
   min-width: 0;
 }
 
@@ -220,12 +234,51 @@ h1 {
   line-height: 1.45;
 }
 
+.todo-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.priority-label,
 .due-date {
   width: fit-content;
-  color: #4f6476;
   font-size: 0.82rem;
   font-weight: 700;
   line-height: 1.35;
+}
+
+.priority-label {
+  padding: 2px 8px;
+  border: 1px solid #cfd8e6;
+  border-radius: 999px;
+  color: #3d4b60;
+  background: #ffffff;
+}
+
+.due-date {
+  color: #4f6476;
+}
+
+.todo-item.priority-high {
+  border-color: #a64221;
+  background: #fff4ed;
+}
+
+.todo-item.priority-high .priority-label {
+  border-color: #a64221;
+  color: #7f2f17;
+  background: #ffe1d2;
+}
+
+.todo-item.priority-low {
+  background: #fbfcfd;
+}
+
+.todo-item.priority-low .priority-label {
+  color: #68758a;
+  background: #f3f6f9;
 }
 
 .todo-item.overdue {
@@ -248,6 +301,12 @@ h1 {
 
 .todo-item.completed .due-date {
   color: #7b8495;
+}
+
+.todo-item.completed .priority-label {
+  border-color: #d4dbe6;
+  color: #7b8495;
+  background: #f7f9fb;
 }
 
 .edit-button,

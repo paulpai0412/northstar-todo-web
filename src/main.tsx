@@ -4,12 +4,17 @@ import {
   addTodo,
   clearCompletedTodos,
   countActiveTodos,
+  countCompletedTodos,
+  countTotalTodos,
   editTodoText,
   filterTodos,
+  getEmptyStateMessage,
   isTodoOverdue,
+  normalizeTodos,
   toggleTodo,
   type Todo,
-  type TodoFilter
+  type TodoFilter,
+  type TodoPriority
 } from "./todos";
 import "./styles.css";
 
@@ -19,18 +24,30 @@ const FILTER_OPTIONS: { value: TodoFilter; label: string }[] = [
   { value: "active", label: "Active" },
   { value: "completed", label: "Completed" }
 ];
+const PRIORITY_OPTIONS: { value: TodoPriority; label: string }[] = [
+  { value: "normal", label: "Normal" },
+  { value: "high", label: "High" },
+  { value: "low", label: "Low" }
+];
+const PRIORITY_LABELS: Record<TodoPriority, string> = {
+  low: "Low",
+  normal: "Normal",
+  high: "High"
+};
 
 function App() {
   const [todos, setTodos] = useState<Todo[]>(() => loadTodos());
   const [todoText, setTodoText] = useState("");
   const [dueDate, setDueDate] = useState("");
+  const [priority, setPriority] = useState<TodoPriority>("normal");
   const [filter, setFilter] = useState<TodoFilter>("all");
   const [editingTodoId, setEditingTodoId] = useState<string | null>(null);
   const [editingTodoText, setEditingTodoText] = useState("");
 
   const activeCount = countActiveTodos(todos);
+  const totalCount = countTotalTodos(todos);
   const visibleTodos = filterTodos(todos, filter);
-  const completedCount = todos.length - activeCount;
+  const completedCount = countCompletedTodos(todos);
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(todos));
@@ -39,10 +56,11 @@ function App() {
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    setTodos((currentTodos) => addTodo(currentTodos, todoText, dueDate));
+    setTodos((currentTodos) => addTodo(currentTodos, todoText, dueDate, priority));
     if (todoText.trim()) {
       setTodoText("");
       setDueDate("");
+      setPriority("normal");
     }
   }
 
@@ -97,14 +115,34 @@ function App() {
               onChange={(event) => setDueDate(event.target.value)}
               aria-label="Due date"
             />
+            <select
+              id="todo-priority"
+              value={priority}
+              onChange={(event) => setPriority(event.target.value as TodoPriority)}
+              aria-label="Priority"
+            >
+              {PRIORITY_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
             <button type="submit">Add</button>
           </div>
         </form>
 
         <div className="todo-toolbar" aria-label="Todo controls">
-          <p className="active-count" aria-live="polite">
-            {activeCount} {activeCount === 1 ? "item" : "items"} left
-          </p>
+          <div className="todo-counts" aria-live="polite">
+            <p className="total-count">
+              {totalCount} total {totalCount === 1 ? "todo" : "todos"}
+            </p>
+            <p className="active-count">
+              {activeCount} {activeCount === 1 ? "item" : "items"} left
+            </p>
+            <p className="completed-count">
+              {completedCount} completed {completedCount === 1 ? "todo" : "todos"}
+            </p>
+          </div>
 
           <div className="filter-group" aria-label="Filter todos">
             {FILTER_OPTIONS.map((option) => (
@@ -132,14 +170,15 @@ function App() {
 
         <ul className="todo-list" aria-label="Todo list">
           {visibleTodos.length === 0 ? (
-            <li className="empty-state">No todos yet.</li>
+            <li className="empty-state">{getEmptyStateMessage(filter)}</li>
           ) : (
             visibleTodos.map((todo) => {
               const overdue = isTodoOverdue(todo);
               const itemClassName = [
                 "todo-item",
                 todo.completed ? "completed" : "",
-                overdue ? "overdue" : ""
+                overdue ? "overdue" : "",
+                `priority-${todo.priority}`
               ]
                 .filter(Boolean)
                 .join(" ");
@@ -180,11 +219,19 @@ function App() {
                       <>
                         <span className="todo-content">
                           <span className="todo-text">{todo.text}</span>
-                          {todo.dueDate ? (
-                            <span className="due-date">
-                              Due {formatDueDate(todo.dueDate)}
+                          <span className="todo-meta">
+                            <span className="priority-label">
+                              {PRIORITY_LABELS[todo.priority]} priority
                             </span>
-                          ) : null}
+                            {todo.createdAt ? (
+                              <span className="created-at">
+                                Added {formatCreatedAt(todo.createdAt)}
+                              </span>
+                            ) : null}
+                            {todo.dueDate ? (
+                              <span className="due-date">Due {formatDueDate(todo.dueDate)}</span>
+                            ) : null}
+                          </span>
                         </span>
                         <button
                           type="button"
@@ -213,29 +260,10 @@ function loadTodos(): Todo[] {
       return [];
     }
 
-    const parsedTodos = JSON.parse(savedTodos);
-    if (!Array.isArray(parsedTodos)) {
-      return [];
-    }
-
-    return parsedTodos.filter(isTodo);
+    return normalizeTodos(JSON.parse(savedTodos));
   } catch {
     return [];
   }
-}
-
-function isTodo(value: unknown): value is Todo {
-  return (
-    typeof value === "object" &&
-    value !== null &&
-    "id" in value &&
-    "text" in value &&
-    "completed" in value &&
-    typeof value.id === "string" &&
-    typeof value.text === "string" &&
-    typeof value.completed === "boolean" &&
-    (!("dueDate" in value) || typeof value.dueDate === "string")
-  );
 }
 
 function formatDueDate(dueDate: string): string {
@@ -246,6 +274,22 @@ function formatDueDate(dueDate: string): string {
     month: "short",
     day: "numeric",
     year: "numeric"
+  }).format(date);
+}
+
+function formatCreatedAt(createdAt: string): string {
+  const date = new Date(createdAt);
+
+  if (Number.isNaN(date.getTime())) {
+    return "unknown";
+  }
+
+  return new Intl.DateTimeFormat(undefined, {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit"
   }).format(date);
 }
 

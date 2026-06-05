@@ -3,9 +3,13 @@ import {
   addTodo,
   clearCompletedTodos,
   countActiveTodos,
+  countCompletedTodos,
+  countTotalTodos,
   editTodoText,
   filterTodos,
+  getEmptyStateMessage,
   isTodoOverdue,
+  normalizeTodos,
   toggleTodo,
   type Todo
 } from "./todos";
@@ -19,48 +23,97 @@ describe("todo core logic", () => {
   });
 
   it("adds trimmed todo text as an incomplete item", () => {
-    const [todo] = addTodo([], "  Write tests  ");
+    const [todo] = addTodo(
+      [],
+      "  Write tests  ",
+      "",
+      "normal",
+      new Date("2026-06-04T10:30:00.000Z")
+    );
 
     expect(todo.text).toBe("Write tests");
     expect(todo.completed).toBe(false);
     expect(todo.dueDate).toBeUndefined();
+    expect(todo.priority).toBe("normal");
+    expect(todo.createdAt).toBe("2026-06-04T10:30:00.000Z");
     expect(todo.id).toEqual(expect.any(String));
   });
 
+  it("adds an explicit priority when provided", () => {
+    const [highPriorityTodo] = addTodo([], "Review launch plan", "", "high");
+    const [lowPriorityTodo] = addTodo([], "Read newsletter", "", "low");
+
+    expect(highPriorityTodo.priority).toBe("high");
+    expect(lowPriorityTodo.priority).toBe("low");
+  });
+
   it("adds a due date when provided", () => {
-    const [todo] = addTodo([], "Pay invoice", "2026-06-12");
+    const [todo] = addTodo([], "Pay invoice", "2026-06-12", "high");
 
     expect(todo.text).toBe("Pay invoice");
     expect(todo.dueDate).toBe("2026-06-12");
+    expect(todo.priority).toBe("high");
   });
 
   it("toggles the matching todo completion state", () => {
     const todos: Todo[] = [
-      { id: "first", text: "First", completed: false, dueDate: "2026-06-12" },
-      { id: "second", text: "Second", completed: true }
+      {
+        id: "first",
+        text: "First",
+        completed: false,
+        dueDate: "2026-06-12",
+        priority: "high"
+      },
+      { id: "second", text: "Second", completed: true, priority: "normal" }
     ];
 
     expect(toggleTodo(todos, "first")).toEqual([
-      { id: "first", text: "First", completed: true, dueDate: "2026-06-12" },
-      { id: "second", text: "Second", completed: true }
+      {
+        id: "first",
+        text: "First",
+        completed: true,
+        dueDate: "2026-06-12",
+        priority: "high"
+      },
+      { id: "second", text: "Second", completed: true, priority: "normal" }
     ]);
   });
 
-  it("edits todo text and preserves completion and due-date data", () => {
+  it("edits todo text and preserves completion, due-date, and metadata", () => {
     const todos: Todo[] = [
-      { id: "first", text: "First", completed: true, dueDate: "2026-06-12" },
-      { id: "second", text: "Second", completed: false }
+      {
+        id: "first",
+        text: "First",
+        completed: true,
+        dueDate: "2026-06-12",
+        priority: "high",
+        createdAt: "2026-06-04T10:30:00.000Z"
+      },
+      { id: "second", text: "Second", completed: false, priority: "normal" }
     ];
 
     expect(editTodoText(todos, "first", "  Updated first  ")).toEqual([
-      { id: "first", text: "Updated first", completed: true, dueDate: "2026-06-12" },
-      { id: "second", text: "Second", completed: false }
+      {
+        id: "first",
+        text: "Updated first",
+        completed: true,
+        dueDate: "2026-06-12",
+        priority: "high",
+        createdAt: "2026-06-04T10:30:00.000Z"
+      },
+      { id: "second", text: "Second", completed: false, priority: "normal" }
     ]);
   });
 
   it("rejects empty edited todo text without deleting or changing the todo", () => {
     const todos: Todo[] = [
-      { id: "first", text: "First", completed: false, dueDate: "2026-06-12" }
+      {
+        id: "first",
+        text: "First",
+        completed: false,
+        dueDate: "2026-06-12",
+        priority: "normal"
+      }
     ];
 
     expect(editTodoText(todos, "first", "   ")).toEqual(todos);
@@ -71,64 +124,138 @@ describe("todo core logic", () => {
 
     expect(
       isTodoOverdue(
-        { id: "past", text: "Past", completed: false, dueDate: "2026-06-03" },
+        {
+          id: "past",
+          text: "Past",
+          completed: false,
+          dueDate: "2026-06-03",
+          priority: "normal"
+        },
         today
       )
     ).toBe(true);
     expect(
       isTodoOverdue(
-        { id: "done", text: "Done", completed: true, dueDate: "2026-06-03" },
+        {
+          id: "done",
+          text: "Done",
+          completed: true,
+          dueDate: "2026-06-03",
+          priority: "normal"
+        },
         today
       )
     ).toBe(false);
     expect(
       isTodoOverdue(
-        { id: "today", text: "Today", completed: false, dueDate: "2026-06-04" },
+        {
+          id: "today",
+          text: "Today",
+          completed: false,
+          dueDate: "2026-06-04",
+          priority: "normal"
+        },
         today
       )
     ).toBe(false);
     expect(
-      isTodoOverdue({ id: "none", text: "None", completed: false }, today)
+      isTodoOverdue(
+        { id: "none", text: "None", completed: false, priority: "normal" },
+        today
+      )
     ).toBe(false);
   });
 
   it("filters todos by all, active, and completed states", () => {
     const todos: Todo[] = [
-      { id: "first", text: "First", completed: false },
-      { id: "second", text: "Second", completed: true },
-      { id: "third", text: "Third", completed: false }
+      { id: "first", text: "First", completed: false, priority: "high" },
+      { id: "second", text: "Second", completed: true, priority: "normal" },
+      { id: "third", text: "Third", completed: false, priority: "low" }
     ];
 
     expect(filterTodos(todos, "all")).toEqual(todos);
     expect(filterTodos(todos, "active")).toEqual([
-      { id: "first", text: "First", completed: false },
-      { id: "third", text: "Third", completed: false }
+      { id: "first", text: "First", completed: false, priority: "high" },
+      { id: "third", text: "Third", completed: false, priority: "low" }
     ]);
     expect(filterTodos(todos, "completed")).toEqual([
-      { id: "second", text: "Second", completed: true }
+      { id: "second", text: "Second", completed: true, priority: "normal" }
     ]);
+  });
+
+  it("returns an empty-state message for each filter", () => {
+    expect(getEmptyStateMessage("all")).toBe("No todos yet. Add one above.");
+    expect(getEmptyStateMessage("active")).toBe("No active todos.");
+    expect(getEmptyStateMessage("completed")).toBe("No completed todos yet.");
   });
 
   it("counts incomplete todos", () => {
     const todos: Todo[] = [
-      { id: "first", text: "First", completed: false },
-      { id: "second", text: "Second", completed: true },
-      { id: "third", text: "Third", completed: false }
+      { id: "first", text: "First", completed: false, priority: "high" },
+      { id: "second", text: "Second", completed: true, priority: "normal" },
+      { id: "third", text: "Third", completed: false, priority: "low" }
     ];
 
     expect(countActiveTodos(todos)).toBe(2);
   });
 
+  it("counts all todos regardless of completion state", () => {
+    const todos: Todo[] = [
+      { id: "first", text: "First", completed: false, priority: "high" },
+      { id: "second", text: "Second", completed: true, priority: "normal" },
+      { id: "third", text: "Third", completed: false, priority: "low" }
+    ];
+
+    expect(countTotalTodos(todos)).toBe(3);
+  });
+
+  it("counts completed todos", () => {
+    const todos: Todo[] = [
+      { id: "first", text: "First", completed: false, priority: "high" },
+      { id: "second", text: "Second", completed: true, priority: "normal" },
+      { id: "third", text: "Third", completed: true, priority: "low" }
+    ];
+
+    expect(countCompletedTodos(todos)).toBe(2);
+  });
+
   it("clears completed todos and preserves active todos", () => {
     const todos: Todo[] = [
-      { id: "first", text: "First", completed: false },
-      { id: "second", text: "Second", completed: true },
-      { id: "third", text: "Third", completed: false }
+      { id: "first", text: "First", completed: false, priority: "high" },
+      { id: "second", text: "Second", completed: true, priority: "normal" },
+      { id: "third", text: "Third", completed: false, priority: "low" }
     ];
 
     expect(clearCompletedTodos(todos)).toEqual([
-      { id: "first", text: "First", completed: false },
-      { id: "third", text: "Third", completed: false }
+      { id: "first", text: "First", completed: false, priority: "high" },
+      { id: "third", text: "Third", completed: false, priority: "low" }
+    ]);
+  });
+
+  it("normalizes stored todos with valid priority data", () => {
+    expect(
+      normalizeTodos([
+        {
+          id: "high",
+          text: "High",
+          completed: false,
+          priority: "high",
+          createdAt: "2026-06-04T10:30:00.000Z"
+        },
+        { id: "low", text: "Low", completed: false, priority: "low" },
+        { id: "legacy", text: "Legacy", completed: true },
+        { id: "bad", text: "Bad", completed: false, priority: "urgent" }
+      ])
+    ).toEqual([
+      {
+        id: "high",
+        text: "High",
+        completed: false,
+        priority: "high",
+        createdAt: "2026-06-04T10:30:00.000Z"
+      },
+      { id: "low", text: "Low", completed: false, priority: "low" },
+      { id: "legacy", text: "Legacy", completed: true, priority: "normal" }
     ]);
   });
 });
