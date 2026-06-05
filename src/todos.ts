@@ -128,6 +128,10 @@ export type TodoProgress = {
   completed: number;
 };
 
+export type TodoCompletionRatio = TodoProgress & {
+  completionPercentage: number;
+};
+
 export function getTodoProgress(todos: Todo[]): TodoProgress {
   const total = countTotalTodos(todos);
   const completed = countCompletedTodos(todos);
@@ -136,6 +140,16 @@ export function getTodoProgress(todos: Todo[]): TodoProgress {
     total,
     completed,
     active: total - completed
+  };
+}
+
+export function getTodoCompletionRatio(todos: Todo[]): TodoCompletionRatio {
+  const progress = getTodoProgress(todos);
+
+  return {
+    ...progress,
+    completionPercentage:
+      progress.total === 0 ? 0 : (progress.completed / progress.total) * 100
   };
 }
 

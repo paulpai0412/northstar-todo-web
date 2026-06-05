@@ -10,6 +10,7 @@ import {
   getEmptyStateMessage,
   getVisibleTodos,
   getTodoProgress,
+  getTodoCompletionRatio,
   isTodoOverdue,
   normalizeTodos,
   toggleTodo,
@@ -259,6 +260,77 @@ describe("todo core logic", () => {
       total: 3,
       active: 2,
       completed: 1
+    });
+  });
+
+  it("returns zero completion ratio data for an empty todo list", () => {
+    expect(getTodoCompletionRatio([])).toEqual({
+      total: 0,
+      completed: 0,
+      active: 0,
+      completionPercentage: 0
+    });
+  });
+
+  it("returns completion ratio data for mixed active and completed todos", () => {
+    const todos: Todo[] = [
+      {
+        id: "first",
+        text: "First",
+        completed: false,
+        priority: "high",
+        dueDate: "2026-06-12",
+        createdAt: "2026-06-01T08:00:00.000Z"
+      },
+      {
+        id: "second",
+        text: "Second",
+        completed: true,
+        priority: "normal",
+        dueDate: "2026-06-05",
+        createdAt: "2026-06-01T09:00:00.000Z"
+      },
+      {
+        id: "third",
+        text: "Third",
+        completed: false,
+        priority: "low",
+        createdAt: "2026-06-01T10:00:00.000Z"
+      },
+      {
+        id: "fourth",
+        text: "Fourth",
+        completed: true,
+        priority: "normal"
+      },
+      {
+        id: "fifth",
+        text: "Fifth",
+        completed: false,
+        priority: "high"
+      }
+    ];
+
+    expect(getTodoCompletionRatio(todos)).toEqual({
+      total: 5,
+      completed: 2,
+      active: 3,
+      completionPercentage: 40
+    });
+  });
+
+  it("returns 100 percent completion ratio when all todos are completed", () => {
+    const todos: Todo[] = [
+      { id: "first", text: "First", completed: true, priority: "high" },
+      { id: "second", text: "Second", completed: true, priority: "normal" },
+      { id: "third", text: "Third", completed: true, priority: "low" }
+    ];
+
+    expect(getTodoCompletionRatio(todos)).toEqual({
+      total: 3,
+      completed: 3,
+      active: 0,
+      completionPercentage: 100
     });
   });
 
