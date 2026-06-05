@@ -57,6 +57,10 @@ function App() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(todos));
   }, [todos]);
 
+  useEffect(() => {
+    document.title = activeCount === 0 ? "Todo Web" : `Todo Web (${activeCount} active)`;
+  }, [activeCount]);
+
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
