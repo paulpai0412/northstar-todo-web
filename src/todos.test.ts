@@ -8,6 +8,7 @@ import {
   editTodoText,
   filterTodos,
   getEmptyStateMessage,
+  getTodoProgress,
   isTodoOverdue,
   normalizeTodos,
   toggleTodo,
@@ -217,6 +218,28 @@ describe("todo core logic", () => {
     ];
 
     expect(countCompletedTodos(todos)).toBe(2);
+  });
+
+  it("returns zero progress counts when there are no todos", () => {
+    expect(getTodoProgress([])).toEqual({
+      total: 0,
+      active: 0,
+      completed: 0
+    });
+  });
+
+  it("returns total, active, and completed progress counts", () => {
+    const todos: Todo[] = [
+      { id: "first", text: "First", completed: false, priority: "high" },
+      { id: "second", text: "Second", completed: true, priority: "normal" },
+      { id: "third", text: "Third", completed: false, priority: "low" }
+    ];
+
+    expect(getTodoProgress(todos)).toEqual({
+      total: 3,
+      active: 2,
+      completed: 1
+    });
   });
 
   it("clears completed todos and preserves active todos", () => {

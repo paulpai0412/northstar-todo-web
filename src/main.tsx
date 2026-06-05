@@ -3,12 +3,10 @@ import { createRoot } from "react-dom/client";
 import {
   addTodo,
   clearCompletedTodos,
-  countActiveTodos,
-  countCompletedTodos,
-  countTotalTodos,
   editTodoText,
   filterTodos,
   getEmptyStateMessage,
+  getTodoProgress,
   isTodoOverdue,
   normalizeTodos,
   toggleTodo,
@@ -44,10 +42,9 @@ function App() {
   const [editingTodoId, setEditingTodoId] = useState<string | null>(null);
   const [editingTodoText, setEditingTodoText] = useState("");
 
-  const activeCount = countActiveTodos(todos);
-  const totalCount = countTotalTodos(todos);
+  const { total: totalCount, active: activeCount, completed: completedCount } =
+    getTodoProgress(todos);
   const visibleTodos = filterTodos(todos, filter);
-  const completedCount = countCompletedTodos(todos);
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(todos));
@@ -133,14 +130,8 @@ function App() {
 
         <div className="todo-toolbar" aria-label="Todo controls">
           <div className="todo-counts" aria-live="polite">
-            <p className="total-count">
-              {totalCount} total {totalCount === 1 ? "todo" : "todos"}
-            </p>
-            <p className="active-count">
-              {activeCount} {activeCount === 1 ? "item" : "items"} left
-            </p>
-            <p className="completed-count">
-              {completedCount} completed {completedCount === 1 ? "todo" : "todos"}
+            <p className="progress-summary">
+              {totalCount} total, {activeCount} active, {completedCount} completed
             </p>
           </div>
 

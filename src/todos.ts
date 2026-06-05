@@ -108,6 +108,23 @@ export function countCompletedTodos(todos: Todo[]): number {
   return todos.filter((todo) => todo.completed).length;
 }
 
+export type TodoProgress = {
+  total: number;
+  active: number;
+  completed: number;
+};
+
+export function getTodoProgress(todos: Todo[]): TodoProgress {
+  const total = countTotalTodos(todos);
+  const completed = countCompletedTodos(todos);
+
+  return {
+    total,
+    completed,
+    active: total - completed
+  };
+}
+
 export function clearCompletedTodos(todos: Todo[]): Todo[] {
   return todos.filter((todo) => !todo.completed);
 }
