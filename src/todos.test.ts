@@ -5,6 +5,7 @@ import {
   countActiveTodos,
   countCompletedTodos,
   countTotalTodos,
+  editTodoText,
   filterTodos,
   getEmptyStateMessage,
   isTodoOverdue,
@@ -76,6 +77,46 @@ describe("todo core logic", () => {
       },
       { id: "second", text: "Second", completed: true, priority: "normal" }
     ]);
+  });
+
+  it("edits todo text and preserves completion, due-date, and metadata", () => {
+    const todos: Todo[] = [
+      {
+        id: "first",
+        text: "First",
+        completed: true,
+        dueDate: "2026-06-12",
+        priority: "high",
+        createdAt: "2026-06-04T10:30:00.000Z"
+      },
+      { id: "second", text: "Second", completed: false, priority: "normal" }
+    ];
+
+    expect(editTodoText(todos, "first", "  Updated first  ")).toEqual([
+      {
+        id: "first",
+        text: "Updated first",
+        completed: true,
+        dueDate: "2026-06-12",
+        priority: "high",
+        createdAt: "2026-06-04T10:30:00.000Z"
+      },
+      { id: "second", text: "Second", completed: false, priority: "normal" }
+    ]);
+  });
+
+  it("rejects empty edited todo text without deleting or changing the todo", () => {
+    const todos: Todo[] = [
+      {
+        id: "first",
+        text: "First",
+        completed: false,
+        dueDate: "2026-06-12",
+        priority: "normal"
+      }
+    ];
+
+    expect(editTodoText(todos, "first", "   ")).toEqual(todos);
   });
 
   it("marks only active todos with past due dates as overdue", () => {

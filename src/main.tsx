@@ -6,6 +6,7 @@ import {
   countActiveTodos,
   countCompletedTodos,
   countTotalTodos,
+  editTodoText,
   filterTodos,
   getEmptyStateMessage,
   isTodoOverdue,
@@ -40,6 +41,8 @@ function App() {
   const [dueDate, setDueDate] = useState("");
   const [priority, setPriority] = useState<TodoPriority>("normal");
   const [filter, setFilter] = useState<TodoFilter>("all");
+  const [editingTodoId, setEditingTodoId] = useState<string | null>(null);
+  const [editingTodoText, setEditingTodoText] = useState("");
 
   const activeCount = countActiveTodos(todos);
   const totalCount = countTotalTodos(todos);
@@ -59,6 +62,28 @@ function App() {
       setDueDate("");
       setPriority("normal");
     }
+  }
+
+  function startEditingTodo(todo: Todo) {
+    setEditingTodoId(todo.id);
+    setEditingTodoText(todo.text);
+  }
+
+  function saveEditedTodo(event: FormEvent<HTMLFormElement>, id: string) {
+    event.preventDefault();
+
+    if (!editingTodoText.trim()) {
+      return;
+    }
+
+    setTodos((currentTodos) => editTodoText(currentTodos, id, editingTodoText));
+    setEditingTodoId(null);
+    setEditingTodoText("");
+  }
+
+  function cancelEditingTodo() {
+    setEditingTodoId(null);
+    setEditingTodoText("");
   }
 
   return (
@@ -158,35 +183,66 @@ function App() {
                 .filter(Boolean)
                 .join(" ");
 
+              const isEditing = editingTodoId === todo.id;
+
               return (
                 <li className={itemClassName} key={todo.id}>
-                  <label>
+                  <div className="todo-row">
                     <input
                       type="checkbox"
                       checked={todo.completed}
+                      aria-label={`Mark ${todo.text} ${todo.completed ? "active" : "complete"}`}
                       onChange={() =>
                         setTodos((currentTodos) => toggleTodo(currentTodos, todo.id))
                       }
                     />
-                    <span className="todo-content">
-                      <span className="todo-text">{todo.text}</span>
-                      <span className="todo-meta">
-                        <span className="priority-label">
-                          {PRIORITY_LABELS[todo.priority]} priority
+                    {isEditing ? (
+                      <form
+                        className="edit-form"
+                        onSubmit={(event) => saveEditedTodo(event, todo.id)}
+                      >
+                        <input
+                          type="text"
+                          value={editingTodoText}
+                          onChange={(event) => setEditingTodoText(event.target.value)}
+                          aria-label={`Edit ${todo.text}`}
+                          autoFocus
+                        />
+                        <button type="submit" disabled={!editingTodoText.trim()}>
+                          Save
+                        </button>
+                        <button type="button" onClick={cancelEditingTodo}>
+                          Cancel
+                        </button>
+                      </form>
+                    ) : (
+                      <>
+                        <span className="todo-content">
+                          <span className="todo-text">{todo.text}</span>
+                          <span className="todo-meta">
+                            <span className="priority-label">
+                              {PRIORITY_LABELS[todo.priority]} priority
+                            </span>
+                            {todo.createdAt ? (
+                              <span className="created-at">
+                                Added {formatCreatedAt(todo.createdAt)}
+                              </span>
+                            ) : null}
+                            {todo.dueDate ? (
+                              <span className="due-date">Due {formatDueDate(todo.dueDate)}</span>
+                            ) : null}
+                          </span>
                         </span>
-                        {todo.createdAt ? (
-                          <span className="created-at">
-                            Added {formatCreatedAt(todo.createdAt)}
-                          </span>
-                        ) : null}
-                        {todo.dueDate ? (
-                          <span className="due-date">
-                            Due {formatDueDate(todo.dueDate)}
-                          </span>
-                        ) : null}
-                      </span>
-                    </span>
-                  </label>
+                        <button
+                          type="button"
+                          className="edit-button"
+                          onClick={() => startEditingTodo(todo)}
+                        >
+                          Edit
+                        </button>
+                      </>
+                    )}
+                  </div>
                 </li>
               );
             })
