@@ -279,6 +279,9 @@ function App() {
           )}
         </ul>
       </section>
+      <footer className="app-footer" aria-label="Status">
+        <p className="status-text">Status: Northstar watch ready</p>
+      </footer>
     </main>
   );
 }
