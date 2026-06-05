@@ -4,8 +4,8 @@ import {
   addTodo,
   clearCompletedTodos,
   editTodoText,
-  filterTodos,
   getEmptyStateMessage,
+  getVisibleTodos,
   getTodoProgress,
   isTodoOverdue,
   normalizeTodos,
@@ -39,12 +39,17 @@ function App() {
   const [dueDate, setDueDate] = useState("");
   const [priority, setPriority] = useState<TodoPriority>("normal");
   const [filter, setFilter] = useState<TodoFilter>("all");
+  const [hideCompleted, setHideCompleted] = useState(false);
   const [editingTodoId, setEditingTodoId] = useState<string | null>(null);
   const [editingTodoText, setEditingTodoText] = useState("");
 
   const { total: totalCount, active: activeCount, completed: completedCount } =
     getTodoProgress(todos);
-  const visibleTodos = filterTodos(todos, filter);
+  const visibleTodos = getVisibleTodos(todos, filter, hideCompleted);
+  const emptyStateMessage =
+    hideCompleted && completedCount > 0 && filter !== "active"
+      ? "Completed todos are hidden."
+      : getEmptyStateMessage(filter);
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(todos));
@@ -149,6 +154,17 @@ function App() {
             ))}
           </div>
 
+          {completedCount > 0 ? (
+            <button
+              type="button"
+              className="completed-visibility-toggle"
+              aria-pressed={hideCompleted}
+              onClick={() => setHideCompleted((currentValue) => !currentValue)}
+            >
+              {hideCompleted ? "Show completed" : "Hide completed"}
+            </button>
+          ) : null}
+
           <button
             type="button"
             className="clear-completed"
@@ -161,7 +177,7 @@ function App() {
 
         <ul className="todo-list" aria-label="Todo list">
           {visibleTodos.length === 0 ? (
-            <li className="empty-state">{getEmptyStateMessage(filter)}</li>
+            <li className="empty-state">{emptyStateMessage}</li>
           ) : (
             visibleTodos.map((todo) => {
               const overdue = isTodoOverdue(todo);

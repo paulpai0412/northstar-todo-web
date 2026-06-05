@@ -84,6 +84,20 @@ export function filterTodos(todos: Todo[], filter: TodoFilter): Todo[] {
   return todos;
 }
 
+export function getVisibleTodos(
+  todos: Todo[],
+  filter: TodoFilter,
+  hideCompleted: boolean
+): Todo[] {
+  const filteredTodos = filterTodos(todos, filter);
+
+  if (!hideCompleted) {
+    return filteredTodos;
+  }
+
+  return filteredTodos.filter((todo) => !todo.completed);
+}
+
 export function getEmptyStateMessage(filter: TodoFilter): string {
   if (filter === "active") {
     return "No active todos.";

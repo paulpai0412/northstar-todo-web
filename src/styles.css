@@ -124,7 +124,7 @@ h1 {
 
 .todo-toolbar {
   display: grid;
-  grid-template-columns: minmax(130px, 1fr) auto auto;
+  grid-template-columns: minmax(130px, 1fr) auto auto auto;
   gap: 12px;
   align-items: center;
   margin-bottom: 18px;
@@ -153,6 +153,7 @@ h1 {
 }
 
 .filter-group button,
+.completed-visibility-toggle,
 .clear-completed {
   min-height: 36px;
   border: 0;
@@ -174,10 +175,25 @@ h1 {
   background: #2f6f73;
 }
 
+.filter-group button:focus-visible,
+.completed-visibility-toggle:focus-visible,
+.clear-completed:focus-visible {
+  outline: var(--focus-ring-outline);
+  outline-offset: 2px;
+}
+
+.completed-visibility-toggle,
 .clear-completed {
   padding: 0 12px;
   border: 1px solid #cfd8e6;
   background: #ffffff;
+}
+
+.completed-visibility-toggle:hover,
+.completed-visibility-toggle[aria-pressed="true"] {
+  border-color: #2f6f73;
+  color: #2f6f73;
+  background: #eef7f7;
 }
 
 .clear-completed:hover:not(:disabled) {
