@@ -9,6 +9,7 @@ import {
   filterTodos,
   getEmptyStateMessage,
   getVisibleTodos,
+  getTodoDueDateSummary,
   getTodoProgress,
   isTodoOverdue,
   normalizeTodos,
@@ -262,6 +263,75 @@ describe("todo core logic", () => {
     expect(getEmptyStateMessage("all")).toBe("No todos yet. Add one above.");
     expect(getEmptyStateMessage("active")).toBe("No active todos.");
     expect(getEmptyStateMessage("completed")).toBe("No completed todos yet.");
+  });
+
+  it("returns zero due-date summary counts for empty todo input", () => {
+    expect(getTodoDueDateSummary([])).toEqual({
+      withDueDate: 0,
+      withoutDueDate: 0
+    });
+  });
+
+  it("summarizes due-date coverage for mixed due and no-due todos", () => {
+    const todos: Todo[] = [
+      {
+        id: "first",
+        text: "First",
+        completed: false,
+        dueDate: "2026-06-12",
+        priority: "high",
+        createdAt: "2026-06-01T10:00:00.000Z"
+      },
+      {
+        id: "second",
+        text: "Second",
+        completed: true,
+        priority: "normal",
+        createdAt: "2026-06-02T10:00:00.000Z"
+      },
+      {
+        id: "third",
+        text: "Third",
+        completed: true,
+        dueDate: "2026-06-20",
+        priority: "low"
+      },
+      {
+        id: "fourth",
+        text: "Fourth",
+        completed: false,
+        priority: "high"
+      }
+    ];
+
+    expect(getTodoDueDateSummary(todos)).toEqual({
+      withDueDate: 2,
+      withoutDueDate: 2
+    });
+  });
+
+  it("summarizes all todos as due when each todo has a due date", () => {
+    const todos: Todo[] = [
+      {
+        id: "first",
+        text: "First",
+        completed: false,
+        dueDate: "2026-06-12",
+        priority: "high"
+      },
+      {
+        id: "second",
+        text: "Second",
+        completed: true,
+        dueDate: "2026-06-15",
+        priority: "normal"
+      }
+    ];
+
+    expect(getTodoDueDateSummary(todos)).toEqual({
+      withDueDate: 2,
+      withoutDueDate: 0
+    });
   });
 
   it("counts incomplete todos", () => {
