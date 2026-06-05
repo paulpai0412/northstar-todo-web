@@ -72,6 +72,16 @@ export function formatDateInputValue(date: Date): string {
   return `${year}-${month}-${day}`;
 }
 
+export function todoMatchesTextQuery(todo: Todo, query: string): boolean {
+  const normalizedQuery = query.trim().toLocaleLowerCase();
+
+  if (!normalizedQuery) {
+    return true;
+  }
+
+  return todo.text.toLocaleLowerCase().includes(normalizedQuery);
+}
+
 export function filterTodos(todos: Todo[], filter: TodoFilter): Todo[] {
   if (filter === "active") {
     return todos.filter((todo) => !todo.completed);
