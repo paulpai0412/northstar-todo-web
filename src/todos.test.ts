@@ -169,46 +169,171 @@ describe("todo core logic", () => {
     ).toBe(false);
   });
 
-  it("filters todos by all, active, and completed states", () => {
+  it("filters todos by all, active, completed, and due-today states", () => {
+    const today = new Date("2026-06-04T08:00:00");
     const todos: Todo[] = [
-      { id: "first", text: "First", completed: false, priority: "high" },
+      {
+        id: "first",
+        text: "First",
+        completed: false,
+        priority: "high",
+        dueDate: "2026-06-04"
+      },
       { id: "second", text: "Second", completed: true, priority: "normal" },
-      { id: "third", text: "Third", completed: false, priority: "low" }
+      {
+        id: "third",
+        text: "Third",
+        completed: false,
+        priority: "low",
+        dueDate: "2026-06-05"
+      },
+      {
+        id: "fourth",
+        text: "Fourth",
+        completed: true,
+        priority: "normal",
+        dueDate: "2026-06-04"
+      }
     ];
 
-    expect(filterTodos(todos, "all")).toEqual(todos);
-    expect(filterTodos(todos, "active")).toEqual([
-      { id: "first", text: "First", completed: false, priority: "high" },
-      { id: "third", text: "Third", completed: false, priority: "low" }
+    expect(filterTodos(todos, "all", today)).toEqual(todos);
+    expect(filterTodos(todos, "active", today)).toEqual([
+      {
+        id: "first",
+        text: "First",
+        completed: false,
+        priority: "high",
+        dueDate: "2026-06-04"
+      },
+      {
+        id: "third",
+        text: "Third",
+        completed: false,
+        priority: "low",
+        dueDate: "2026-06-05"
+      }
     ]);
-    expect(filterTodos(todos, "completed")).toEqual([
-      { id: "second", text: "Second", completed: true, priority: "normal" }
+    expect(filterTodos(todos, "completed", today)).toEqual([
+      { id: "second", text: "Second", completed: true, priority: "normal" },
+      {
+        id: "fourth",
+        text: "Fourth",
+        completed: true,
+        priority: "normal",
+        dueDate: "2026-06-04"
+      }
+    ]);
+    expect(filterTodos(todos, "dueToday", today)).toEqual([
+      {
+        id: "first",
+        text: "First",
+        completed: false,
+        priority: "high",
+        dueDate: "2026-06-04"
+      },
+      {
+        id: "fourth",
+        text: "Fourth",
+        completed: true,
+        priority: "normal",
+        dueDate: "2026-06-04"
+      }
     ]);
   });
 
-  it("hides completed todos while preserving active todos when requested", () => {
+  it("hides completed todos while preserving active todos for every filter", () => {
+    const today = new Date("2026-06-04T08:00:00");
     const todos: Todo[] = [
-      { id: "first", text: "First", completed: false, priority: "high" },
+      {
+        id: "first",
+        text: "First",
+        completed: false,
+        priority: "high",
+        dueDate: "2026-06-04"
+      },
       { id: "second", text: "Second", completed: true, priority: "normal" },
-      { id: "third", text: "Third", completed: false, priority: "low" }
+      {
+        id: "third",
+        text: "Third",
+        completed: false,
+        priority: "low",
+        dueDate: "2026-06-05"
+      },
+      {
+        id: "fourth",
+        text: "Fourth",
+        completed: true,
+        priority: "normal",
+        dueDate: "2026-06-04"
+      }
     ];
 
-    expect(getVisibleTodos(todos, "all", false)).toEqual(todos);
-    expect(getVisibleTodos(todos, "all", true)).toEqual([
-      { id: "first", text: "First", completed: false, priority: "high" },
-      { id: "third", text: "Third", completed: false, priority: "low" }
+    expect(getVisibleTodos(todos, "all", false, today)).toEqual(todos);
+    expect(getVisibleTodos(todos, "all", true, today)).toEqual([
+      {
+        id: "first",
+        text: "First",
+        completed: false,
+        priority: "high",
+        dueDate: "2026-06-04"
+      },
+      {
+        id: "third",
+        text: "Third",
+        completed: false,
+        priority: "low",
+        dueDate: "2026-06-05"
+      }
     ]);
-    expect(getVisibleTodos(todos, "active", true)).toEqual([
-      { id: "first", text: "First", completed: false, priority: "high" },
-      { id: "third", text: "Third", completed: false, priority: "low" }
+    expect(getVisibleTodos(todos, "active", true, today)).toEqual([
+      {
+        id: "first",
+        text: "First",
+        completed: false,
+        priority: "high",
+        dueDate: "2026-06-04"
+      },
+      {
+        id: "third",
+        text: "Third",
+        completed: false,
+        priority: "low",
+        dueDate: "2026-06-05"
+      }
     ]);
-    expect(getVisibleTodos(todos, "completed", true)).toEqual([]);
+    expect(getVisibleTodos(todos, "completed", true, today)).toEqual([]);
+    expect(getVisibleTodos(todos, "dueToday", false, today)).toEqual([
+      {
+        id: "first",
+        text: "First",
+        completed: false,
+        priority: "high",
+        dueDate: "2026-06-04"
+      },
+      {
+        id: "fourth",
+        text: "Fourth",
+        completed: true,
+        priority: "normal",
+        dueDate: "2026-06-04"
+      }
+    ]);
+    expect(getVisibleTodos(todos, "dueToday", true, today)).toEqual([
+      {
+        id: "first",
+        text: "First",
+        completed: false,
+        priority: "high",
+        dueDate: "2026-06-04"
+      }
+    ]);
   });
 
   it("returns an empty-state message for each filter", () => {
     expect(getEmptyStateMessage("all")).toBe("No todos yet. Add one above.");
     expect(getEmptyStateMessage("active")).toBe("No active todos.");
     expect(getEmptyStateMessage("completed")).toBe("No completed todos yet.");
+    expect(getEmptyStateMessage("dueToday")).toBe("No todos due today.");
   });
 
   it("counts incomplete todos", () => {

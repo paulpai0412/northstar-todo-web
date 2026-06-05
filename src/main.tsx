@@ -20,7 +20,8 @@ const STORAGE_KEY = "northstar-todo-web.todos";
 const FILTER_OPTIONS: { value: TodoFilter; label: string }[] = [
   { value: "all", label: "All" },
   { value: "active", label: "Active" },
-  { value: "completed", label: "Completed" }
+  { value: "completed", label: "Completed" },
+  { value: "dueToday", label: "Due today" }
 ];
 const PRIORITY_OPTIONS: { value: TodoPriority; label: string }[] = [
   { value: "normal", label: "Normal" },
