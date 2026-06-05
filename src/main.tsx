@@ -189,6 +189,7 @@ function App() {
                 <li className={itemClassName} key={todo.id}>
                   <div className="todo-row">
                     <input
+                      id={`todo-toggle-${todo.id}`}
                       type="checkbox"
                       checked={todo.completed}
                       aria-label={`Mark ${todo.text} ${todo.completed ? "active" : "complete"}`}
@@ -217,7 +218,10 @@ function App() {
                       </form>
                     ) : (
                       <>
-                        <span className="todo-content">
+                        <label
+                          className="todo-content todo-content-label"
+                          htmlFor={`todo-toggle-${todo.id}`}
+                        >
                           <span className="todo-text">{todo.text}</span>
                           <span className="todo-meta">
                             <span className="priority-label">
@@ -232,7 +236,7 @@ function App() {
                               <span className="due-date">Due {formatDueDate(todo.dueDate)}</span>
                             ) : null}
                           </span>
-                        </span>
+                        </label>
                         <button
                           type="button"
                           className="edit-button"
