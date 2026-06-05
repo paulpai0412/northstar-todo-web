@@ -122,6 +122,22 @@ export function countCompletedTodos(todos: Todo[]): number {
   return todos.filter((todo) => todo.completed).length;
 }
 
+export type TodoDueDateSummary = {
+  withDueDate: number;
+  withoutDueDate: number;
+};
+
+export function getTodoDueDateSummary(todos: Todo[]): TodoDueDateSummary {
+  const withDueDate = todos.filter(
+    (todo) => typeof todo.dueDate === "string" && todo.dueDate.trim().length > 0
+  ).length;
+
+  return {
+    withDueDate,
+    withoutDueDate: todos.length - withDueDate
+  };
+}
+
 export type TodoProgress = {
   total: number;
   active: number;
