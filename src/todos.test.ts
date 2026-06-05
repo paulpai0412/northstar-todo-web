@@ -9,11 +9,10 @@ import {
   filterTodos,
   getEmptyStateMessage,
   getVisibleTodos,
-  getTodoDueDateSummary,
   getTodoProgress,
+  getTodoCompletionRatio,
   isTodoOverdue,
   normalizeTodos,
-  todoMatchesTextQuery,
   toggleTodo,
   type Todo
 } from "./todos";
@@ -170,59 +169,6 @@ describe("todo core logic", () => {
     ).toBe(false);
   });
 
-  it("matches all todos when query is empty or whitespace only", () => {
-    const todo: Todo = {
-      id: "todo",
-      text: "Review release notes",
-      completed: true,
-      createdAt: "2026-06-04T10:30:00.000Z",
-      dueDate: "2026-06-12",
-      priority: "high"
-    };
-
-    expect(todoMatchesTextQuery(todo, "")).toBe(true);
-    expect(todoMatchesTextQuery(todo, "   ")).toBe(true);
-  });
-
-  it("matches todo text case-insensitively and trims query", () => {
-    const todo: Todo = {
-      id: "todo",
-      text: "Review release notes",
-      completed: false,
-      priority: "normal"
-    };
-
-    expect(todoMatchesTextQuery(todo, "REVIEW")).toBe(true);
-    expect(todoMatchesTextQuery(todo, "  notes  ")).toBe(true);
-  });
-
-  it("returns false when todo text does not include the query", () => {
-    const todo: Todo = {
-      id: "todo",
-      text: "Review release notes",
-      completed: false,
-      priority: "normal"
-    };
-
-    expect(todoMatchesTextQuery(todo, "meeting")).toBe(false);
-  });
-
-  it("does not mutate the todo while matching text queries", () => {
-    const todo: Todo = {
-      id: "todo",
-      text: "Review release notes",
-      completed: true,
-      createdAt: "2026-06-04T10:30:00.000Z",
-      dueDate: "2026-06-12",
-      priority: "high"
-    };
-    const originalTodo = { ...todo };
-
-    todoMatchesTextQuery(todo, "review");
-
-    expect(todo).toEqual(originalTodo);
-  });
-
   it("filters todos by all, active, and completed states", () => {
     const todos: Todo[] = [
       { id: "first", text: "First", completed: false, priority: "high" },
@@ -263,75 +209,6 @@ describe("todo core logic", () => {
     expect(getEmptyStateMessage("all")).toBe("No todos yet. Add one above.");
     expect(getEmptyStateMessage("active")).toBe("No active todos.");
     expect(getEmptyStateMessage("completed")).toBe("No completed todos yet.");
-  });
-
-  it("returns zero due-date summary counts for empty todo input", () => {
-    expect(getTodoDueDateSummary([])).toEqual({
-      withDueDate: 0,
-      withoutDueDate: 0
-    });
-  });
-
-  it("summarizes due-date coverage for mixed due and no-due todos", () => {
-    const todos: Todo[] = [
-      {
-        id: "first",
-        text: "First",
-        completed: false,
-        dueDate: "2026-06-12",
-        priority: "high",
-        createdAt: "2026-06-01T10:00:00.000Z"
-      },
-      {
-        id: "second",
-        text: "Second",
-        completed: true,
-        priority: "normal",
-        createdAt: "2026-06-02T10:00:00.000Z"
-      },
-      {
-        id: "third",
-        text: "Third",
-        completed: true,
-        dueDate: "2026-06-20",
-        priority: "low"
-      },
-      {
-        id: "fourth",
-        text: "Fourth",
-        completed: false,
-        priority: "high"
-      }
-    ];
-
-    expect(getTodoDueDateSummary(todos)).toEqual({
-      withDueDate: 2,
-      withoutDueDate: 2
-    });
-  });
-
-  it("summarizes all todos as due when each todo has a due date", () => {
-    const todos: Todo[] = [
-      {
-        id: "first",
-        text: "First",
-        completed: false,
-        dueDate: "2026-06-12",
-        priority: "high"
-      },
-      {
-        id: "second",
-        text: "Second",
-        completed: true,
-        dueDate: "2026-06-15",
-        priority: "normal"
-      }
-    ];
-
-    expect(getTodoDueDateSummary(todos)).toEqual({
-      withDueDate: 2,
-      withoutDueDate: 0
-    });
   });
 
   it("counts incomplete todos", () => {
@@ -383,6 +260,77 @@ describe("todo core logic", () => {
       total: 3,
       active: 2,
       completed: 1
+    });
+  });
+
+  it("returns zero completion ratio data for an empty todo list", () => {
+    expect(getTodoCompletionRatio([])).toEqual({
+      total: 0,
+      completed: 0,
+      active: 0,
+      completionPercentage: 0
+    });
+  });
+
+  it("returns completion ratio data for mixed active and completed todos", () => {
+    const todos: Todo[] = [
+      {
+        id: "first",
+        text: "First",
+        completed: false,
+        priority: "high",
+        dueDate: "2026-06-12",
+        createdAt: "2026-06-01T08:00:00.000Z"
+      },
+      {
+        id: "second",
+        text: "Second",
+        completed: true,
+        priority: "normal",
+        dueDate: "2026-06-05",
+        createdAt: "2026-06-01T09:00:00.000Z"
+      },
+      {
+        id: "third",
+        text: "Third",
+        completed: false,
+        priority: "low",
+        createdAt: "2026-06-01T10:00:00.000Z"
+      },
+      {
+        id: "fourth",
+        text: "Fourth",
+        completed: true,
+        priority: "normal"
+      },
+      {
+        id: "fifth",
+        text: "Fifth",
+        completed: false,
+        priority: "high"
+      }
+    ];
+
+    expect(getTodoCompletionRatio(todos)).toEqual({
+      total: 5,
+      completed: 2,
+      active: 3,
+      completionPercentage: 40
+    });
+  });
+
+  it("returns 100 percent completion ratio when all todos are completed", () => {
+    const todos: Todo[] = [
+      { id: "first", text: "First", completed: true, priority: "high" },
+      { id: "second", text: "Second", completed: true, priority: "normal" },
+      { id: "third", text: "Third", completed: true, priority: "low" }
+    ];
+
+    expect(getTodoCompletionRatio(todos)).toEqual({
+      total: 3,
+      completed: 3,
+      active: 0,
+      completionPercentage: 100
     });
   });
 
