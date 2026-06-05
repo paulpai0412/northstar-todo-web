@@ -131,17 +131,11 @@ h1 {
   gap: 3px;
 }
 
-.total-count,
-.active-count,
-.completed-count {
+.progress-summary {
   margin: 0;
-  color: #303b50;
+  color: #182033;
   font-size: 0.92rem;
   font-weight: 700;
-}
-
-.total-count {
-  color: #182033;
 }
 
 .filter-group {
