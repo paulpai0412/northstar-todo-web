@@ -8,6 +8,7 @@ import {
   editTodoText,
   filterTodos,
   getEmptyStateMessage,
+  getVisibleTodos,
   getTodoProgress,
   isTodoOverdue,
   normalizeTodos,
@@ -182,6 +183,25 @@ describe("todo core logic", () => {
     expect(filterTodos(todos, "completed")).toEqual([
       { id: "second", text: "Second", completed: true, priority: "normal" }
     ]);
+  });
+
+  it("hides completed todos while preserving active todos when requested", () => {
+    const todos: Todo[] = [
+      { id: "first", text: "First", completed: false, priority: "high" },
+      { id: "second", text: "Second", completed: true, priority: "normal" },
+      { id: "third", text: "Third", completed: false, priority: "low" }
+    ];
+
+    expect(getVisibleTodos(todos, "all", false)).toEqual(todos);
+    expect(getVisibleTodos(todos, "all", true)).toEqual([
+      { id: "first", text: "First", completed: false, priority: "high" },
+      { id: "third", text: "Third", completed: false, priority: "low" }
+    ]);
+    expect(getVisibleTodos(todos, "active", true)).toEqual([
+      { id: "first", text: "First", completed: false, priority: "high" },
+      { id: "third", text: "Third", completed: false, priority: "low" }
+    ]);
+    expect(getVisibleTodos(todos, "completed", true)).toEqual([]);
   });
 
   it("returns an empty-state message for each filter", () => {

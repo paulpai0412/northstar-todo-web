@@ -1,11 +1,11 @@
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import {
   addTodo,
   clearCompletedTodos,
   editTodoText,
-  filterTodos,
   getEmptyStateMessage,
+  getVisibleTodos,
   getTodoProgress,
   isTodoOverdue,
   normalizeTodos,
@@ -32,6 +32,7 @@ const PRIORITY_LABELS: Record<TodoPriority, string> = {
   normal: "Normal",
   high: "High"
 };
+const QUICK_ADD_EXAMPLES = ["Buy groceries", "Review notes", "Plan tomorrow"];
 
 function App() {
   const [todos, setTodos] = useState<Todo[]>(() => loadTodos());
@@ -39,12 +40,18 @@ function App() {
   const [dueDate, setDueDate] = useState("");
   const [priority, setPriority] = useState<TodoPriority>("normal");
   const [filter, setFilter] = useState<TodoFilter>("all");
+  const [hideCompleted, setHideCompleted] = useState(false);
   const [editingTodoId, setEditingTodoId] = useState<string | null>(null);
   const [editingTodoText, setEditingTodoText] = useState("");
+  const todoInputRef = useRef<HTMLInputElement>(null);
 
   const { total: totalCount, active: activeCount, completed: completedCount } =
     getTodoProgress(todos);
-  const visibleTodos = filterTodos(todos, filter);
+  const visibleTodos = getVisibleTodos(todos, filter, hideCompleted);
+  const emptyStateMessage =
+    hideCompleted && completedCount > 0 && filter !== "active"
+      ? "Completed todos are hidden."
+      : getEmptyStateMessage(filter);
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(todos));
@@ -99,6 +106,7 @@ function App() {
           <div className="todo-entry">
             <input
               id="todo-input"
+              ref={todoInputRef}
               type="text"
               value={todoText}
               onChange={(event) => setTodoText(event.target.value)}
@@ -126,6 +134,22 @@ function App() {
             </select>
             <button type="submit">Add</button>
           </div>
+          <div className="quick-add-row" aria-label="Quick add examples">
+            <span className="quick-add-label">Try:</span>
+            {QUICK_ADD_EXAMPLES.map((example) => (
+              <button
+                key={example}
+                type="button"
+                className="quick-add-button"
+                onClick={() => {
+                  setTodoText(example);
+                  todoInputRef.current?.focus();
+                }}
+              >
+                {example}
+              </button>
+            ))}
+          </div>
         </form>
 
         <div className="todo-toolbar" aria-label="Todo controls">
@@ -149,6 +173,17 @@ function App() {
             ))}
           </div>
 
+          {completedCount > 0 ? (
+            <button
+              type="button"
+              className="completed-visibility-toggle"
+              aria-pressed={hideCompleted}
+              onClick={() => setHideCompleted((currentValue) => !currentValue)}
+            >
+              {hideCompleted ? "Show completed" : "Hide completed"}
+            </button>
+          ) : null}
+
           <button
             type="button"
             className="clear-completed"
@@ -161,7 +196,7 @@ function App() {
 
         <ul className="todo-list" aria-label="Todo list">
           {visibleTodos.length === 0 ? (
-            <li className="empty-state">{getEmptyStateMessage(filter)}</li>
+            <li className="empty-state">{emptyStateMessage}</li>
           ) : (
             visibleTodos.map((todo) => {
               const overdue = isTodoOverdue(todo);
