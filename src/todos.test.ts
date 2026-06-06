@@ -205,6 +205,37 @@ describe("todo core logic", () => {
     expect(getVisibleTodos(todos, "completed", true)).toEqual([]);
   });
 
+  it("shows only todos due today when due-today filter is active", () => {
+    const today = new Date("2026-06-04T12:00:00");
+
+    const todos: Todo[] = [
+      { id: "a", text: "A", completed: false, priority: "normal", dueDate: "2026-06-04" },
+      { id: "b", text: "B", completed: false, priority: "normal", dueDate: "2026-06-05" },
+      { id: "c", text: "C", completed: true, priority: "normal", dueDate: "2026-06-04" },
+      { id: "d", text: "D", completed: false, priority: "normal" }
+    ];
+
+    expect(getVisibleTodos(todos, "due-today", false, today)).toEqual([
+      { id: "a", text: "A", completed: false, priority: "normal", dueDate: "2026-06-04" },
+      { id: "c", text: "C", completed: true, priority: "normal", dueDate: "2026-06-04" }
+    ]);
+  });
+
+  it("respects hideCompleted when due-today filter is active", () => {
+    const today = new Date("2026-06-04T12:00:00");
+
+    const todos: Todo[] = [
+      { id: "a", text: "A", completed: false, priority: "normal", dueDate: "2026-06-04" },
+      { id: "b", text: "B", completed: false, priority: "normal", dueDate: "2026-06-05" },
+      { id: "c", text: "C", completed: true, priority: "normal", dueDate: "2026-06-04" },
+      { id: "d", text: "D", completed: false, priority: "normal" }
+    ];
+
+    expect(getVisibleTodos(todos, "due-today", true, today)).toEqual([
+      { id: "a", text: "A", completed: false, priority: "normal", dueDate: "2026-06-04" }
+    ]);
+  });
+
   it("returns an empty-state message for each filter", () => {
     expect(getEmptyStateMessage("all")).toBe("No todos yet. Add one above.");
     expect(getEmptyStateMessage("active")).toBe("No active todos.");
