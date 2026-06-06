@@ -165,6 +165,27 @@ export function getTodoCompletionRatio(todos: Todo[]): TodoCompletionRatio {
   };
 }
 
+export function getTodoPriorityCounts(todos: Todo[]): { low: number; normal: number; high: number } {
+  const counts = { low: 0, normal: 0, high: 0 };
+
+  for (const todo of todos) {
+    if (!todo || typeof (todo as any).priority !== "string") {
+      continue;
+    }
+
+    if (todo.priority === "low") {
+      counts.low++;
+    } else if (todo.priority === "normal") {
+      counts.normal++;
+    } else if (todo.priority === "high") {
+      counts.high++;
+    }
+    // Ignore unknown priority values to preserve the existing TodoPriority type
+  }
+
+  return counts;
+}
+
 export function clearCompletedTodos(todos: Todo[]): Todo[] {
   return todos.filter((todo) => !todo.completed);
 }

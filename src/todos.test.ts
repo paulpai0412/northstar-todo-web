@@ -11,6 +11,7 @@ import {
   getVisibleTodos,
   getTodoProgress,
   getTodoCompletionRatio,
+  getTodoPriorityCounts,
   isTodoOverdue,
   normalizeTodos,
   toggleTodo,
@@ -270,6 +271,31 @@ describe("todo core logic", () => {
     ];
 
     expect(countCompletedTodos(todos)).toBe(2);
+  });
+
+  it("returns zero priority counts when there are no todos", () => {
+    expect(getTodoPriorityCounts([])).toEqual({ low: 0, normal: 0, high: 0 });
+  });
+
+  it("counts todos by priority regardless of completion state", () => {
+    const todos: Todo[] = [
+      { id: "a", text: "A", completed: false, priority: "high" },
+      { id: "b", text: "B", completed: true, priority: "normal" },
+      { id: "c", text: "C", completed: false, priority: "low" },
+      { id: "d", text: "D", completed: true, priority: "high" }
+    ];
+
+    expect(getTodoPriorityCounts(todos)).toEqual({ low: 1, normal: 1, high: 2 });
+  });
+
+  it("includes completed todos in priority counts", () => {
+    const todos: Todo[] = [
+      { id: "x", text: "X", completed: true, priority: "low" },
+      { id: "y", text: "Y", completed: true, priority: "low" },
+      { id: "z", text: "Z", completed: false, priority: "normal" }
+    ];
+
+    expect(getTodoPriorityCounts(todos)).toEqual({ low: 2, normal: 1, high: 0 });
   });
 
   it("returns zero progress counts when there are no todos", () => {
