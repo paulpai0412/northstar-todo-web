@@ -9,7 +9,7 @@ export type Todo = {
   priority: TodoPriority;
 };
 
-export type TodoFilter = "all" | "active" | "completed";
+export type TodoFilter = "all" | "active" | "completed" | "due-today";
 
 export function addTodo(
   todos: Todo[],
@@ -87,9 +87,17 @@ export function filterTodos(todos: Todo[], filter: TodoFilter): Todo[] {
 export function getVisibleTodos(
   todos: Todo[],
   filter: TodoFilter,
-  hideCompleted: boolean
+  hideCompleted: boolean,
+  today: Date = new Date()
 ): Todo[] {
-  const filteredTodos = filterTodos(todos, filter);
+  let filteredTodos: Todo[];
+
+  if (filter === "due-today") {
+    const todayValue = formatDateInputValue(today);
+    filteredTodos = todos.filter((todo) => todo.dueDate === todayValue);
+  } else {
+    filteredTodos = filterTodos(todos, filter);
+  }
 
   if (!hideCompleted) {
     return filteredTodos;
@@ -105,6 +113,10 @@ export function getEmptyStateMessage(filter: TodoFilter): string {
 
   if (filter === "completed") {
     return "No completed todos yet.";
+  }
+
+  if (filter === "due-today") {
+    return "No todos due today.";
   }
 
   return "No todos yet. Add one above.";
