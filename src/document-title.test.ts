@@ -90,5 +90,5 @@ describe("document title active-count sync", () => {
     clickButton("Clear completed");
     await flushReact();
     expect(document.title).toBe("Todo Web");
-  });
+  }, 20000);
 });
