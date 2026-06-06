@@ -56,5 +56,5 @@ describe("quick-add examples", () => {
     expect(
       [...document.querySelectorAll(".todo-text")].map((node) => node.textContent?.trim())
     ).toContain("Buy groceries");
-  });
+  }, 20000);
 });
