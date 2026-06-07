@@ -13,6 +13,7 @@ import {
   getTodoCompletionRatio,
   getTodoPriorityCounts,
   isTodoOverdue,
+  hasOverdueTodos,
   normalizeTodos,
   toggleTodo,
   type Todo
@@ -168,6 +169,29 @@ describe("todo core logic", () => {
         today
       )
     ).toBe(false);
+  });
+
+  it("reports false for empty todo list", () => {
+    expect(hasOverdueTodos([])).toBe(false);
+  });
+
+  it("reports true when at least one active todo is overdue", () => {
+    const today = new Date("2026-06-04T12:00:00");
+    const todos: Todo[] = [
+      { id: "a", text: "A", completed: false, priority: "normal", dueDate: "2026-06-03" },
+      { id: "b", text: "B", completed: false, priority: "normal", dueDate: "2026-06-05" }
+    ];
+
+    expect(hasOverdueTodos(todos, today)).toBe(true);
+  });
+
+  it("ignores completed overdue todos", () => {
+    const today = new Date("2026-06-04T12:00:00");
+    const todos: Todo[] = [
+      { id: "done", text: "Done", completed: true, priority: "normal", dueDate: "2026-06-03" }
+    ];
+
+    expect(hasOverdueTodos(todos, today)).toBe(false);
   });
 
   it("filters todos by all, active, and completed states", () => {
