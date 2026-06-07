@@ -376,6 +376,21 @@ describe("todo core logic", () => {
     });
   });
 
+  it("returns zero completion ratio when no todos are completed", () => {
+    const todos: Todo[] = [
+      { id: "a", text: "A", completed: false, priority: "high" },
+      { id: "b", text: "B", completed: false, priority: "normal" },
+      { id: "c", text: "C", completed: false, priority: "low" }
+    ];
+
+    expect(getTodoCompletionRatio(todos)).toEqual({
+      total: 3,
+      completed: 0,
+      active: 3,
+      completionPercentage: 0
+    });
+  });
+
   it("returns 100 percent completion ratio when all todos are completed", () => {
     const todos: Todo[] = [
       { id: "first", text: "First", completed: true, priority: "high" },
