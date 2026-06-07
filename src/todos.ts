@@ -64,6 +64,16 @@ export function isTodoOverdue(todo: Todo, today = new Date()): boolean {
   return todo.dueDate < formatDateInputValue(today);
 }
 
+export function hasOverdueTodos(todos: Todo[], today: Date = new Date()): boolean {
+  for (const todo of todos) {
+    if (isTodoOverdue(todo, today)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 export function formatDateInputValue(date: Date): string {
   const year = date.getFullYear();
   const month = `${date.getMonth() + 1}`.padStart(2, "0");
