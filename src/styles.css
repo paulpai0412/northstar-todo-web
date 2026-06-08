@@ -86,7 +86,7 @@ h1 {
 
 .todo-entry {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(150px, auto) minmax(120px, auto) auto;
+  grid-template-columns: minmax(0, 1fr) minmax(150px, auto) minmax(120px, auto) minmax(140px, auto) auto;
   gap: 10px;
 }
 

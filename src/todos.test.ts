@@ -61,6 +61,19 @@ describe("todo core logic", () => {
     expect(todo.priority).toBe("high");
   });
 
+  it("stores dependsOn when adding a todo", () => {
+    const [todo] = addTodo(
+      [],
+      "Review notes",
+      "",
+      "normal",
+      new Date("2026-06-04T10:30:00.000Z"),
+      "parent-id"
+    );
+
+    expect(todo.dependsOn).toBe("parent-id");
+  });
+
   it("toggles the matching todo completion state", () => {
     const todos: Todo[] = [
       {
@@ -480,6 +493,28 @@ describe("todo core logic", () => {
       },
       { id: "low", text: "Low", completed: false, priority: "low" },
       { id: "legacy", text: "Legacy", completed: true, priority: "normal" }
+    ]);
+  });
+
+  it("normalizes stored todos with dependsOn metadata", () => {
+    expect(
+      normalizeTodos([
+        {
+          id: "child",
+          text: "Child",
+          completed: false,
+          priority: "normal",
+          dependsOn: "parent"
+        }
+      ])
+    ).toEqual([
+      {
+        id: "child",
+        text: "Child",
+        completed: false,
+        priority: "normal",
+        dependsOn: "parent"
+      }
     ]);
   });
 });
