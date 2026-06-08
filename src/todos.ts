@@ -74,6 +74,10 @@ export function hasOverdueTodos(todos: Todo[], today: Date = new Date()): boolea
   return false;
 }
 
+export function getOverdueTodoCount(todos: Todo[], today: Date = new Date()): number {
+  return todos.filter((todo) => isTodoOverdue(todo, today)).length;
+}
+
 export function formatDateInputValue(date: Date): string {
   const year = date.getFullYear();
   const month = `${date.getMonth() + 1}`.padStart(2, "0");

@@ -5,6 +5,7 @@ import {
   clearCompletedTodos,
   editTodoText,
   getEmptyStateMessage,
+  getOverdueTodoCount,
   getVisibleTodos,
   getTodoProgress,
   isTodoOverdue,
@@ -49,6 +50,7 @@ function App() {
   const { total: totalCount, active: activeCount, completed: completedCount } =
     getTodoProgress(todos);
   const visibleTodos = getVisibleTodos(todos, filter, hideCompleted);
+  const overdueCount = getOverdueTodoCount(todos);
   const emptyStateMessage =
     hideCompleted && completedCount > 0 && filter !== "active"
       ? "Completed todos are hidden."
@@ -162,6 +164,11 @@ function App() {
             <p className="progress-summary">
               {totalCount} total, {activeCount} active, {completedCount} completed
             </p>
+            {overdueCount > 0 ? (
+              <p className="overdue-summary" aria-live="polite">
+                {overdueCount} {overdueCount === 1 ? "todo is" : "todos are"} overdue
+              </p>
+            ) : null}
           </div>
 
           <div className="filter-group" aria-label="Filter todos">
