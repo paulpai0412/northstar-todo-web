@@ -123,6 +123,46 @@ export function getVisibleTodos(
   return filteredTodos.filter((todo) => !todo.completed);
 }
 
+export function sortVisibleTodos(todos: Todo[]): Todo[] {
+  // Sort a shallow copy of the array so the original order is not mutated.
+  return [...todos].sort((a, b) => {
+    // 1) completed items always go last
+    if (a.completed !== b.completed) {
+      return a.completed ? 1 : -1;
+    }
+
+    // 2) items without a due date go after those with a due date
+    const aHasDue = !!a.dueDate;
+    const bHasDue = !!b.dueDate;
+    if (aHasDue !== bHasDue) {
+      return aHasDue ? -1 : 1;
+    }
+
+    // 3) if both have due dates, sort by due date ascending (YYYY-MM-DD lexicographic)
+    if (aHasDue && bHasDue && a.dueDate !== b.dueDate) {
+      return a.dueDate < b.dueDate ? -1 : 1;
+    }
+
+    // 4) priority descending: high > normal > low
+    const priorityValue = (p: TodoPriority) => (p === "high" ? 2 : p === "normal" ? 1 : 0);
+    const aPri = priorityValue(a.priority);
+    const bPri = priorityValue(b.priority);
+    if (aPri !== bPri) {
+      return bPri - aPri;
+    }
+
+    // 5) createdAt: newest first (descending)
+    const aCreated = a.createdAt ? Date.parse(a.createdAt) : 0;
+    const bCreated = b.createdAt ? Date.parse(b.createdAt) : 0;
+    if (aCreated !== bCreated) {
+      return bCreated - aCreated;
+    }
+
+    // preserve original order otherwise
+    return 0;
+  });
+}
+
 export function getEmptyStateMessage(filter: TodoFilter): string {
   if (filter === "active") {
     return "No active todos.";
