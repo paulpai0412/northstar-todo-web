@@ -6,6 +6,7 @@ import {
   editTodoText,
   getEmptyStateMessage,
   getOverdueTodoCount,
+  countTodayDueTodos,
   getVisibleTodos,
   getTodoProgress,
   isTodoOverdue,
@@ -51,6 +52,7 @@ function App() {
   const { total: totalCount, active: activeCount, completed: completedCount } =
     getTodoProgress(todos);
   const visibleTodos = getVisibleTodos(todos, filter, hideCompleted);
+  const todayDueCount = countTodayDueTodos(todos);
   const overdueCount = getOverdueTodoCount(todos);
   const emptyStateMessage =
     hideCompleted && completedCount > 0 && filter !== "active"
@@ -185,6 +187,9 @@ function App() {
               <p className="overdue-summary" aria-live="polite">
                 {overdueCount} {overdueCount === 1 ? "todo is" : "todos are"} overdue
               </p>
+            ) : null}
+            {todayDueCount > 0 ? (
+              <p className="today-due-summary">Today due: {todayDueCount}</p>
             ) : null}
           </div>
 

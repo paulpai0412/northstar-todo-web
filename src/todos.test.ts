@@ -13,6 +13,7 @@ import {
   getTodoCompletionRatio,
   getTodoPriorityCounts,
   getOverdueTodoCount,
+  countTodayDueTodos,
   isTodoOverdue,
   hasOverdueTodos,
   normalizeTodos,
@@ -321,6 +322,18 @@ describe("todo core logic", () => {
     ];
 
     expect(countCompletedTodos(todos)).toBe(2);
+  });
+
+  it("counts todos due today excluding completed and those without dueDate", () => {
+    const today = new Date("2026-06-04T12:00:00");
+
+    const todos: Todo[] = [
+      { id: "a", text: "A", completed: false, priority: "normal", dueDate: "2026-06-04" },
+      { id: "b", text: "B", completed: true, priority: "normal", dueDate: "2026-06-04" },
+      { id: "c", text: "C", completed: false, priority: "normal" }
+    ];
+
+    expect(countTodayDueTodos(todos, today)).toBe(1);
   });
 
   it("returns zero priority counts when there are no todos", () => {

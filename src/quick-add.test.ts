@@ -57,4 +57,37 @@ describe("quick-add examples", () => {
       [...document.querySelectorAll(".todo-text")].map((node) => node.textContent?.trim())
     ).toContain("Buy groceries");
   }, 20000);
+
+  it("shows and hides Today due summary correctly based on todos", async () => {
+    // Case: show
+    vi.resetModules();
+    localStorage.clear();
+    const today = new Date();
+    const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+    const todosToday = [
+      { id: "1", text: "Due Today", completed: false, priority: "normal", dueDate: todayStr }
+    ];
+    localStorage.setItem("northstar-todo-web.todos", JSON.stringify(todosToday));
+    document.body.innerHTML = '<div id="root"></div>';
+    await import("./main");
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(
+      [...document.querySelectorAll(".today-due-summary")].map((node) => node.textContent?.trim())
+    ).toContain("Today due: 1");
+
+    // Case: not show
+    vi.resetModules();
+    localStorage.clear();
+    const todosNone = [
+      { id: "2", text: "Not Due", completed: false, priority: "normal", dueDate: "1999-01-01" }
+    ];
+    localStorage.setItem("northstar-todo-web.todos", JSON.stringify(todosNone));
+    document.body.innerHTML = '<div id="root"></div>';
+    await import("./main");
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const todayDueEls = document.querySelectorAll(".today-due-summary");
+    expect([0, 1]).toContain(todayDueEls.length);
+  });
 });

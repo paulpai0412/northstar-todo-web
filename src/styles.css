@@ -184,6 +184,13 @@ h1 {
   font-weight: 700;
 }
 
+.today-due-summary {
+  margin: 0.2rem 0 0;
+  color: #b45309; /* amber-like */
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
 .filter-group {
   display: inline-grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
