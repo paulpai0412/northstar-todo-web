@@ -151,6 +151,11 @@ export function countCompletedTodos(todos: Todo[]): number {
   return todos.filter((todo) => todo.completed).length;
 }
 
+export function countTodayDueTodos(todos: Todo[], today: Date = new Date()): number {
+  const todayValue = formatDateInputValue(today);
+  return todos.filter((todo) => !todo.completed && todo.dueDate === todayValue).length;
+}
+
 export type TodoProgress = {
   total: number;
   active: number;
