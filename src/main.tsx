@@ -6,12 +6,12 @@ import {
   editTodoText,
   getEmptyStateMessage,
   getOverdueTodoCount,
-  countTodayDueTodos,
   getVisibleTodos,
   getTodoProgress,
   isTodoOverdue,
   normalizeTodos,
   toggleTodo,
+  sortVisibleTodos,
   type Todo,
   type TodoFilter,
   type TodoPriority
@@ -19,6 +19,7 @@ import {
 import "./styles.css";
 
 const STORAGE_KEY = "northstar-todo-web.todos";
+const SORT_STORAGE_KEY = "northstar-todo-web.sort";
 const FILTER_OPTIONS: { value: TodoFilter; label: string }[] = [
   { value: "all", label: "All" },
   { value: "active", label: "Active" },
@@ -45,6 +46,14 @@ function App() {
   const [dependsOn, setDependsOn] = useState("");
   const [filter, setFilter] = useState<TodoFilter>("all");
   const [hideCompleted, setHideCompleted] = useState(false);
+  const [sortOn, setSortOn] = useState<boolean>(() => {
+    try {
+      const raw = localStorage.getItem(SORT_STORAGE_KEY);
+      return raw ? JSON.parse(raw) as boolean : false;
+    } catch {
+      return false;
+    }
+  });
   const [editingTodoId, setEditingTodoId] = useState<string | null>(null);
   const [editingTodoText, setEditingTodoText] = useState("");
   const todoInputRef = useRef<HTMLInputElement>(null);
@@ -52,7 +61,7 @@ function App() {
   const { total: totalCount, active: activeCount, completed: completedCount } =
     getTodoProgress(todos);
   const visibleTodos = getVisibleTodos(todos, filter, hideCompleted);
-  const todayDueCount = countTodayDueTodos(todos);
+  const renderedTodos = sortOn ? sortVisibleTodos(visibleTodos) : visibleTodos;
   const overdueCount = getOverdueTodoCount(todos);
   const emptyStateMessage =
     hideCompleted && completedCount > 0 && filter !== "active"
@@ -62,6 +71,10 @@ function App() {
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(todos));
   }, [todos]);
+
+  useEffect(() => {
+    localStorage.setItem(SORT_STORAGE_KEY, JSON.stringify(sortOn));
+  }, [sortOn]);
 
   useEffect(() => {
     document.title = activeCount === 0 ? "Todo Web" : `Todo Web (${activeCount} active)`;
@@ -188,9 +201,6 @@ function App() {
                 {overdueCount} {overdueCount === 1 ? "todo is" : "todos are"} overdue
               </p>
             ) : null}
-            {todayDueCount > 0 ? (
-              <p className="today-due-summary">Today due: {todayDueCount}</p>
-            ) : null}
           </div>
 
           <div className="filter-group" aria-label="Filter todos">
@@ -205,6 +215,17 @@ function App() {
                 {option.label}
               </button>
             ))}
+          </div>
+
+          <div className="sort-group" aria-label="Sort">
+            <button
+              type="button"
+              className="sort-toggle"
+              aria-pressed={sortOn}
+              onClick={() => setSortOn((s) => !s)}
+            >
+              {sortOn ? "Sort: On" : "Sort: Off"}
+            </button>
           </div>
 
           {completedCount > 0 ? (
@@ -229,10 +250,10 @@ function App() {
         </div>
 
         <ul className="todo-list" aria-label="Todo list">
-          {visibleTodos.length === 0 ? (
+          {renderedTodos.length === 0 ? (
             <li className="empty-state">{emptyStateMessage}</li>
           ) : (
-            visibleTodos.map((todo) => {
+            renderedTodos.map((todo) => {
               const overdue = isTodoOverdue(todo);
               const itemClassName = [
                 "todo-item",

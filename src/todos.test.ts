@@ -18,6 +18,7 @@ import {
   hasOverdueTodos,
   normalizeTodos,
   toggleTodo,
+  sortVisibleTodos,
   type Todo
 } from "./todos";
 
@@ -529,5 +530,51 @@ describe("todo core logic", () => {
         dependsOn: "parent"
       }
     ]);
+  });
+
+  it("sorts visible todos without mutating original array", () => {
+    const todos: Todo[] = [
+      { id: "a", text: "A", completed: false, priority: "normal", dueDate: "2026-06-05", createdAt: "2026-06-01T10:00:00.000Z" },
+      { id: "b", text: "B", completed: false, priority: "high", dueDate: "2026-06-05", createdAt: "2026-06-01T11:00:00.000Z" },
+      { id: "c", text: "C", completed: true, priority: "low", dueDate: "2026-06-04", createdAt: "2026-06-01T09:00:00.000Z" }
+    ];
+
+    const before = todos.map((t) => ({ ...t }));
+    const sorted = sortVisibleTodos(todos);
+    expect(todos).toEqual(before);
+    expect(sorted.map((t) => t.id)).toEqual(["b", "a", "c"]);
+  });
+
+  it("places items without due date after those with due dates", () => {
+    const todos: Todo[] = [
+      { id: "a", text: "A", completed: false, priority: "high" },
+      { id: "b", text: "B", completed: false, priority: "low", dueDate: "2026-06-07" },
+      { id: "c", text: "C", completed: false, priority: "normal", dueDate: "2026-06-06" }
+    ];
+
+    const sorted = sortVisibleTodos(todos);
+    expect(sorted.map((t) => t.id)).toEqual(["c", "b", "a"]);
+  });
+
+  it("orders by due date asc, priority desc, createdAt new-to-old", () => {
+    const todos: Todo[] = [
+      { id: "a", text: "A", completed: false, priority: "normal", dueDate: "2026-06-05", createdAt: "2026-06-01T10:00:00.000Z" },
+      { id: "b", text: "B", completed: false, priority: "normal", dueDate: "2026-06-05", createdAt: "2026-06-01T11:00:00.000Z" },
+      { id: "c", text: "C", completed: false, priority: "high", dueDate: "2026-06-05", createdAt: "2026-06-01T09:00:00.000Z" }
+    ];
+
+    const sorted = sortVisibleTodos(todos);
+    expect(sorted.map((t) => t.id)).toEqual(["c", "b", "a"]);
+  });
+
+  it("always places completed todos at the end", () => {
+    const todos: Todo[] = [
+      { id: "a", text: "A", completed: true, priority: "high", dueDate: "2026-06-01" },
+      { id: "b", text: "B", completed: false, priority: "normal", dueDate: "2026-06-02" },
+      { id: "c", text: "C", completed: false, priority: "low", dueDate: "2026-06-03" }
+    ];
+
+    const sorted = sortVisibleTodos(todos);
+    expect(sorted.map((t) => t.id)).toEqual(["b", "c", "a"]);
   });
 });
