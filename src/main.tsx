@@ -40,6 +40,7 @@ function App() {
   const [todoText, setTodoText] = useState("");
   const [dueDate, setDueDate] = useState("");
   const [priority, setPriority] = useState<TodoPriority>("normal");
+  const [dependsOn, setDependsOn] = useState("");
   const [filter, setFilter] = useState<TodoFilter>("all");
   const [hideCompleted, setHideCompleted] = useState(false);
   const [editingTodoId, setEditingTodoId] = useState<string | null>(null);
@@ -65,11 +66,14 @@ function App() {
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    setTodos((currentTodos) => addTodo(currentTodos, todoText, dueDate, priority));
+    setTodos((currentTodos) =>
+      addTodo(currentTodos, todoText, dueDate, priority, new Date(), dependsOn || null)
+    );
     if (todoText.trim()) {
       setTodoText("");
       setDueDate("");
       setPriority("normal");
+      setDependsOn("");
     }
   }
 
@@ -134,6 +138,19 @@ function App() {
               {PRIORITY_OPTIONS.map((option) => (
                 <option key={option.value} value={option.value}>
                   {option.label}
+                </option>
+              ))}
+            </select>
+            <select
+              id="todo-depends-on"
+              value={dependsOn}
+              onChange={(event) => setDependsOn(event.target.value)}
+              aria-label="Depends on"
+            >
+              <option value="">None</option>
+              {todos.map((todo) => (
+                <option key={todo.id} value={todo.id}>
+                  {todo.text}
                 </option>
               ))}
             </select>

@@ -7,6 +7,7 @@ export type Todo = {
   createdAt?: string;
   dueDate?: string;
   priority: TodoPriority;
+  dependsOn?: string | null;
 };
 
 export type TodoFilter = "all" | "active" | "completed" | "due-today";
@@ -16,7 +17,8 @@ export function addTodo(
   text: string,
   dueDate = "",
   priority: TodoPriority = "normal",
-  createdAt = new Date()
+  createdAt = new Date(),
+  dependsOn: string | null = null
 ): Todo[] {
   const trimmedText = text.trim();
   const trimmedDueDate = dueDate.trim();
@@ -32,7 +34,8 @@ export function addTodo(
       completed: false,
       createdAt: createdAt.toISOString(),
       priority,
-      ...(trimmedDueDate ? { dueDate: trimmedDueDate } : {})
+      ...(trimmedDueDate ? { dueDate: trimmedDueDate } : {}),
+      ...(dependsOn ? { dependsOn } : {})
     },
     ...todos
   ];
@@ -215,6 +218,9 @@ export function normalizeTodos(value: unknown): Todo[] {
       return [];
     }
 
+    const dependsOn =
+      "dependsOn" in item && typeof item.dependsOn === "string" ? item.dependsOn : undefined;
+
     return [
       {
         id: item.id,
@@ -224,7 +230,8 @@ export function normalizeTodos(value: unknown): Todo[] {
         ...("createdAt" in item && item.createdAt
           ? { createdAt: item.createdAt }
           : {}),
-        ...("dueDate" in item && item.dueDate ? { dueDate: item.dueDate } : {})
+        ...("dueDate" in item && item.dueDate ? { dueDate: item.dueDate } : {}),
+        ...(dependsOn ? { dependsOn } : {})
       }
     ];
   });
@@ -237,6 +244,7 @@ function isStoredTodo(value: unknown): value is {
   createdAt?: string;
   dueDate?: string;
   priority?: unknown;
+  dependsOn?: string | null;
 } {
   return (
     typeof value === "object" &&
@@ -248,7 +256,8 @@ function isStoredTodo(value: unknown): value is {
     typeof value.text === "string" &&
     typeof value.completed === "boolean" &&
     (!("createdAt" in value) || typeof value.createdAt === "string") &&
-    (!("dueDate" in value) || typeof value.dueDate === "string")
+    (!("dueDate" in value) || typeof value.dueDate === "string") &&
+    (!("dependsOn" in value) || value.dependsOn === null || typeof value.dependsOn === "string")
   );
 }
 
