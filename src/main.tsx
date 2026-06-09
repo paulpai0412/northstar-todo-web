@@ -87,9 +87,7 @@ function App() {
     document.title = activeCount === 0 ? "Todo Web" : `Todo Web (${activeCount} active)`;
   }, [activeCount]);
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-
+  function doAddTodo() {
     setTodos((currentTodos) =>
       addTodo(currentTodos, todoText, dueDate, priority, new Date(), dependsOn || null)
     );
@@ -99,6 +97,11 @@ function App() {
       setPriority("normal");
       setDependsOn("");
     }
+  }
+
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    doAddTodo();
   }
 
   function startEditingTodo(todo: Todo) {
@@ -143,6 +146,12 @@ function App() {
               type="text"
               value={todoText}
               onChange={(event) => setTodoText(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter" && (event.ctrlKey || event.metaKey)) {
+                  event.preventDefault();
+                  doAddTodo();
+                }
+              }}
               placeholder="Add a task"
               autoComplete="off"
             />
