@@ -187,8 +187,10 @@ describe("todo core logic", () => {
     ).toBe(false);
   });
 
-  it("reports false for empty todo list", () => {
-    expect(hasOverdueTodos([])).toBe(false);
+  it("returns false for empty todo list when checking for overdue todos", () => {
+    const today = new Date("2026-06-04T12:00:00");
+
+    expect(hasOverdueTodos([], today)).toBe(false);
   });
 
   it("counts overdue active todos", () => {
@@ -203,20 +205,22 @@ describe("todo core logic", () => {
     expect(getOverdueTodoCount(todos, today)).toBe(2);
   });
 
-  it("reports true when at least one active todo is overdue", () => {
+  it("returns true when at least one active todo is overdue", () => {
     const today = new Date("2026-06-04T12:00:00");
+
     const todos: Todo[] = [
-      { id: "a", text: "A", completed: false, priority: "normal", dueDate: "2026-06-03" },
-      { id: "b", text: "B", completed: false, priority: "normal", dueDate: "2026-06-05" }
+      { id: "past", text: "Past", completed: false, dueDate: "2026-06-03", priority: "normal" },
+      { id: "future", text: "Future", completed: false, dueDate: "2026-06-05", priority: "normal" }
     ];
 
     expect(hasOverdueTodos(todos, today)).toBe(true);
   });
 
-  it("ignores completed overdue todos", () => {
+  it("ignores completed overdue todos when checking for overdue presence", () => {
     const today = new Date("2026-06-04T12:00:00");
+
     const todos: Todo[] = [
-      { id: "done", text: "Done", completed: true, priority: "normal", dueDate: "2026-06-03" }
+      { id: "done", text: "Done", completed: true, dueDate: "2026-06-03", priority: "normal" }
     ];
 
     expect(hasOverdueTodos(todos, today)).toBe(false);
