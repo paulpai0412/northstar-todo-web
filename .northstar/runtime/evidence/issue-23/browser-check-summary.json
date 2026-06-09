@@ -1,0 +1,16 @@
+{
+  "ran": true,
+  "tests_passed": 3,
+  "checks": [
+    "quick-add row with three examples is visible",
+    "clicking quick-add fills input and keeps focus on input",
+    "clicking Add after quick-add creates todo"
+  ],
+  "screenshots": [
+    "evidence/issue-23/quick-add-row-visible.png",
+    "evidence/issue-23/quick-add-after-add.png"
+  ],
+  "quick_add_visible": true,
+  "selected_example": "Review notes",
+  "todo_created": true
+}

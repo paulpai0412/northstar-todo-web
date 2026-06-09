@@ -69,8 +69,8 @@ function App() {
       ? "Completed todos are hidden."
       : getEmptyStateMessage(filter);
 
-  const hasOverdue = hasOverdueTodos(todos);
   const overdueCount = getOverdueTodoCount(todos);
+  const hasOverdue = overdueCount > 0;
   const todayDueCount = countTodayDueTodos(todos);
 
   useEffect(() => {
