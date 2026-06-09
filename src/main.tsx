@@ -26,8 +26,7 @@ const SORT_STORAGE_KEY = "northstar-todo-web.sort";
 const FILTER_OPTIONS: { value: TodoFilter; label: string }[] = [
   { value: "all", label: "All" },
   { value: "active", label: "Active" },
-  { value: "completed", label: "Completed" },
-  { value: "due-today", label: "Due today" }
+  { value: "completed", label: "Completed" }
 ];
 const PRIORITY_OPTIONS: { value: TodoPriority; label: string }[] = [
   { value: "normal", label: "Normal" },
