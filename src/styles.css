@@ -72,6 +72,42 @@ h1 {
   line-height: 1.6;
 }
 
+/* Shortcut hint banner */
+.shortcut-hint {
+  margin-top: 12px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: #f1f9f8;
+  border: 1px solid #d6efe9;
+  color: #0f6b60;
+  font-size: 0.95rem;
+}
+
+.shortcut-hint kbd {
+  background: #eef3f4;
+  border-radius: 4px;
+  padding: 2px 6px;
+  border: 1px solid #cfd8e6;
+  font-weight: 700;
+}
+
+.shortcut-dismiss {
+  margin-left: auto;
+  border: 0;
+  background: transparent;
+  color: #2f6f73;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.shortcut-dismiss:focus-visible {
+  outline: var(--focus-ring-outline);
+  outline-offset: 2px;
+}
+
 .todo-form {
   display: grid;
   gap: 10px;

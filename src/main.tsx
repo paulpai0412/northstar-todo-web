@@ -24,6 +24,7 @@ import "./styles.css";
 const STORAGE_KEY = "northstar-todo-web.todos";
 const SORT_STORAGE_KEY = "northstar-todo-web.sort";
 const FILTER_STORAGE_KEY = "northstar-todo-web.filter";
+const SHORTCUT_HINT_KEY = "northstar-todo-web.shortcutHintDismissed";
 const FILTER_OPTIONS: { value: TodoFilter; label: string }[] = [
   { value: "all", label: "All" },
   { value: "active", label: "Active" },
@@ -68,6 +69,16 @@ function App() {
   const [editingTodoText, setEditingTodoText] = useState("");
   const todoInputRef = useRef<HTMLInputElement>(null);
 
+  // Shortcut hint state: shows on first visit unless dismissed
+  const [showShortcutHint, setShowShortcutHint] = useState<boolean>(() => {
+    try {
+      const raw = localStorage.getItem(SHORTCUT_HINT_KEY);
+      return raw ? raw !== "true" : true;
+    } catch {
+      return true;
+    }
+  });
+
   const { total: totalCount, active: activeCount, completed: completedCount } =
     getTodoProgress(todos);
   const visibleTodos = getVisibleTodos(todos, filter, hideCompleted);
@@ -98,6 +109,30 @@ function App() {
   useEffect(() => {
     document.title = activeCount === 0 ? "Todo Web" : `Todo Web (${activeCount} active)`;
   }, [activeCount]);
+
+  // Keyboard shortcut: focus new todo input when pressing 'n'
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      try {
+        if (e.key.toLowerCase() === "n" && (document.activeElement?.tagName ?? "") !== "INPUT") {
+          todoInputRef.current?.focus();
+        }
+      } catch {
+        // ignore
+      }
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
+  function dismissShortcutHint() {
+    try {
+      localStorage.setItem(SHORTCUT_HINT_KEY, "true");
+    } catch {
+      // ignore
+    }
+    setShowShortcutHint(false);
+  }
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -144,6 +179,20 @@ function App() {
           <p className="intro-copy">
             Capture a short list, mark work complete, and keep it after refresh.
           </p>
+
+          {showShortcutHint ? (
+            <div className="shortcut-hint" role="status" aria-live="polite">
+              <span className="shortcut-text">Tip: Press <kbd>n</kbd> to focus the new task input.</span>
+              <button
+                type="button"
+                className="shortcut-dismiss"
+                onClick={dismissShortcutHint}
+                aria-label="Dismiss keyboard shortcut hint"
+              >
+                Dismiss
+              </button>
+            </div>
+          ) : null}
         </div>
 
         <form className="todo-form" onSubmit={handleSubmit}>
