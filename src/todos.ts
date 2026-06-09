@@ -20,17 +20,17 @@ export function addTodo(
   createdAt = new Date(),
   dependsOn: string | null = null
 ): Todo[] {
-  const trimmedText = text.trim();
+  const normalizedText = text.trim().replace(/\s+/g, " ");
   const trimmedDueDate = dueDate.trim();
 
-  if (!trimmedText) {
+  if (!normalizedText) {
     return todos;
   }
 
   return [
     {
       id: createTodoId(),
-      text: trimmedText,
+      text: normalizedText,
       completed: false,
       createdAt: createdAt.toISOString(),
       priority,
@@ -48,14 +48,14 @@ export function toggleTodo(todos: Todo[], id: string): Todo[] {
 }
 
 export function editTodoText(todos: Todo[], id: string, text: string): Todo[] {
-  const trimmedText = text.trim();
+  const normalizedText = text.trim().replace(/\s+/g, " ");
 
-  if (!trimmedText) {
+  if (!normalizedText) {
     return todos;
   }
 
   return todos.map((todo) =>
-    todo.id === id ? { ...todo, text: trimmedText } : todo
+    todo.id === id ? { ...todo, text: normalizedText } : todo
   );
 }
 
