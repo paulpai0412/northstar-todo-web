@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import {
   addTodo,
   clearCompletedTodos,
+  completeVisibleTodos,
   countTodayDueTodos,
   editTodoText,
   getEmptyStateMessage,
@@ -64,6 +65,8 @@ function App() {
     getTodoProgress(todos);
   const visibleTodos = getVisibleTodos(todos, filter, hideCompleted);
   const renderedTodos = sortOn ? sortVisibleTodos(visibleTodos) : visibleTodos;
+  const visibleIncompleteIds = visibleTodos.filter((todo) => !todo.completed).map((todo) => todo.id);
+  const canCompleteVisible = visibleIncompleteIds.length > 0;
   const emptyStateMessage =
     hideCompleted && completedCount > 0 && filter !== "active"
       ? "Completed todos are hidden."
@@ -250,6 +253,21 @@ function App() {
             onClick={() => setTodos((currentTodos) => clearCompletedTodos(currentTodos))}
           >
             Clear completed
+          </button>
+
+          <button
+            type="button"
+            className="complete-visible"
+            disabled={!canCompleteVisible}
+            onClick={() =>
+              setTodos((currentTodos) => {
+                const visible = getVisibleTodos(currentTodos, filter, hideCompleted);
+                const ids = visible.filter((t) => !t.completed).map((t) => t.id);
+                return completeVisibleTodos(currentTodos, ids);
+              })
+            }
+          >
+            Complete visible
           </button>
         </div>
 

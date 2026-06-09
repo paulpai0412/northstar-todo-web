@@ -45,13 +45,13 @@ describe("quick-add examples", () => {
     }
 
     clickButton("Buy groceries");
-    await Promise.resolve();
+    await new Promise((resolve) => setTimeout(resolve, 0));
 
     expect(input.value).toBe("Buy groceries");
     expect(document.activeElement).toBe(input);
 
     clickButton("Add");
-    await Promise.resolve();
+    await new Promise((resolve) => setTimeout(resolve, 0));
 
     expect(
       [...document.querySelectorAll(".todo-text")].map((node) => node.textContent?.trim())
@@ -89,5 +89,101 @@ describe("quick-add examples", () => {
 
     const todayDueEls = document.querySelectorAll(".today-due-summary");
     expect([0, 1]).toContain(todayDueEls.length);
+  });
+});
+
+describe("complete visible toolbar action", () => {
+  beforeEach(() => {
+    localStorage.clear();
+    document.body.innerHTML = "";
+  });
+
+  it("enables Complete visible when there are visible incomplete todos and completes them on click", async () => {
+    await renderApp();
+
+    // Add three todos via quick-add buttons
+    clickButton('Buy groceries');
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    clickButton('Add');
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    clickButton('Review notes');
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    clickButton('Add');
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    clickButton('Plan tomorrow');
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    clickButton('Add');
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    // Mark one as completed (find by text)
+    const firstItem = [...document.querySelectorAll('.todo-item')].find((item) => item.querySelector('.todo-text')?.textContent?.trim() === 'Buy groceries');
+    const firstCheckbox = firstItem?.querySelector('input[type="checkbox"]') as HTMLInputElement | undefined;
+    if (!firstCheckbox) throw new Error('checkbox not found');
+    firstCheckbox.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const itemsBefore = [...document.querySelectorAll('.todo-item')].filter((item) => ['Buy groceries', 'Review notes', 'Plan tomorrow'].includes(item.querySelector('.todo-text')?.textContent?.trim() || ''));
+    const totalBefore = itemsBefore.length;
+    const activeBefore = itemsBefore.filter((el) => !el.classList.contains('completed')).length;
+    const completedBefore = itemsBefore.filter((el) => el.classList.contains('completed')).length;
+    expect(totalBefore).toBe(3);
+    expect(activeBefore).toBe(2);
+    expect(completedBefore).toBe(1);
+
+    const completeButton = [...document.querySelectorAll('button')].find(b => b.textContent?.trim() === 'Complete visible') as HTMLButtonElement | undefined;
+    expect(completeButton).toBeTruthy();
+    expect(completeButton!.disabled).toBe(false);
+
+    clickButton('Complete visible');
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const itemsAfter = [...document.querySelectorAll('.todo-item')].filter((item) => ['Buy groceries', 'Review notes', 'Plan tomorrow'].includes(item.querySelector('.todo-text')?.textContent?.trim() || ''));
+    const totalAfter = itemsAfter.length;
+    const activeAfter = itemsAfter.filter((el) => !el.classList.contains('completed')).length;
+    const completedAfter = itemsAfter.filter((el) => el.classList.contains('completed')).length;
+    expect(totalAfter).toBe(3);
+    expect(activeAfter).toBe(0);
+    expect(completedAfter).toBe(3);
+  });
+
+  it("disables Complete visible when there are no visible incomplete todos and click does nothing", async () => {
+    await renderApp();
+
+    // Add two todos via quick-add and mark both completed
+    clickButton('Buy groceries');
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    clickButton('Add');
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    clickButton('Review notes');
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    clickButton('Add');
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const items = [...document.querySelectorAll('.todo-item')].filter((item) => ['Buy groceries', 'Review notes'].includes(item.querySelector('.todo-text')?.textContent?.trim() || ''));
+    for (const item of items) {
+      const checkbox = item.querySelector('input[type="checkbox"]') as HTMLInputElement | undefined;
+      if (checkbox && !checkbox.checked) {
+        checkbox.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+        await new Promise((resolve) => setTimeout(resolve, 0));
+      }
+    }
+
+    const completeButton = [...document.querySelectorAll('button')].find(b => b.textContent?.trim() === 'Complete visible') as HTMLButtonElement | undefined;
+    expect(completeButton).toBeTruthy();
+    expect(completeButton!.disabled).toBe(true);
+
+    clickButton('Complete visible');
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const itemsAfter = [...document.querySelectorAll('.todo-item')].filter((item) => ['Buy groceries', 'Review notes'].includes(item.querySelector('.todo-text')?.textContent?.trim() || ''));
+    const totalAfter = itemsAfter.length;
+    const activeAfter = itemsAfter.filter((el) => !el.classList.contains('completed')).length;
+    const completedAfter = itemsAfter.filter((el) => el.classList.contains('completed')).length;
+    expect(totalAfter).toBe(2);
+    expect(activeAfter).toBe(0);
+    expect(completedAfter).toBe(2);
   });
 });
