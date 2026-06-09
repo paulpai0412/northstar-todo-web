@@ -355,6 +355,20 @@ function App() {
             })
           )}
         </ul>
+
+        <footer className="todo-footer" aria-live="polite">
+          <p className="footer-summary">
+            {activeCount} active, {completedCount} completed
+          </p>
+          <button
+            type="button"
+            className="clear-completed-footer"
+            disabled={completedCount === 0}
+            onClick={() => setTodos((currentTodos) => clearCompletedTodos(currentTodos))}
+          >
+            Clear completed
+          </button>
+        </footer>
       </section>
     </main>
   );
