@@ -358,6 +358,7 @@ function App() {
                             {todo.dueDate ? (
                               <span className="due-date">Due {formatDueDate(todo.dueDate)}</span>
                             ) : null}
+                            <span className="char-count" aria-hidden="true">{todo.text.length}</span>
                           </span>
                         </label>
                         <button
