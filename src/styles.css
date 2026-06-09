@@ -86,8 +86,30 @@ h1 {
 
 .todo-entry {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(150px, auto) minmax(120px, auto) minmax(140px, auto) auto;
+  grid-template-columns: minmax(0, 1fr) 36px minmax(150px, auto) minmax(120px, auto) minmax(140px, auto) auto;
   gap: 10px;
+}
+
+.clear-input {
+  min-width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #303b50;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.clear-input:disabled {
+  color: #9aa4b5;
+  cursor: not-allowed;
+}
+
+.clear-input:focus-visible {
+  outline: var(--focus-ring-outline);
+  outline-offset: 2px;
 }
 
 .todo-entry input,

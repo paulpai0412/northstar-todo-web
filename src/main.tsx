@@ -158,6 +158,15 @@ function App() {
               placeholder="Add a task"
               autoComplete="off"
             />
+            <button
+              type="button"
+              className="clear-input"
+              aria-label="Clear input"
+              onClick={() => setTodoText("")}
+              disabled={!todoText.trim()}
+            >
+              ×
+            </button>
             <input
               id="todo-due-date"
               type="date"
