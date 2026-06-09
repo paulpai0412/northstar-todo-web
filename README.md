@@ -47,3 +47,5 @@ Manual browser checks:
 9. Refresh the page and confirm the persisted todos, due dates, completion state,
    and total count remain correct.
 10. Try submitting an empty or whitespace-only todo and confirm no item is added.
+
+Note: Issue #88 implemented — the list area shows a small helper text when there are no todos, guiding how to add the first task.
