@@ -321,7 +321,7 @@ function isTodoPriority(value: unknown): value is TodoPriority {
   return value === "low" || value === "normal" || value === "high";
 }
 
-function createTodoId(): string {
+export function createTodoId(): string {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
     return crypto.randomUUID();
   }
