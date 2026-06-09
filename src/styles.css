@@ -294,6 +294,44 @@ h1 {
   border-radius: 6px;
 }
 
+/* Tooltip that shows created time on hover/focus for each todo row */
+.todo-row {
+  position: relative;
+}
+
+.created-tooltip {
+  position: absolute;
+  top: -8px;
+  right: 46px;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-6px);
+  transition: opacity 120ms ease, transform 120ms ease;
+  background: rgba(20,30,40,0.95);
+  color: #ffffff;
+  padding: 6px 8px;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  line-height: 1;
+  white-space: nowrap;
+  box-shadow: 0 6px 20px rgba(2,6,23,0.25);
+  z-index: 10;
+}
+
+.todo-row:hover .created-tooltip,
+.todo-row:focus-within .created-tooltip {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+@media (max-width: 560px) {
+  .created-tooltip {
+    right: 16px;
+    top: calc(100% + 8px);
+  }
+}
+
 .todo-content {
   display: grid;
   gap: 6px;

@@ -335,6 +335,7 @@ function App() {
                         <label
                           className="todo-content todo-content-label"
                           htmlFor={`todo-toggle-${todo.id}`}
+                          aria-describedby={todo.createdAt ? `created-tooltip-${todo.id}` : undefined}
                         >
                           <span className="todo-text">{todo.text}</span>
                           <span className="todo-meta">
@@ -342,9 +343,18 @@ function App() {
                               {PRIORITY_LABELS[todo.priority]} priority
                             </span>
                             {todo.createdAt ? (
-                              <span className="created-at">
-                                Added {formatCreatedAt(todo.createdAt)}
-                              </span>
+                              <>
+                                <span className="created-at">
+                                  Added {formatCreatedAt(todo.createdAt)}
+                                </span>
+                                <span
+                                  id={`created-tooltip-${todo.id}`}
+                                  role="tooltip"
+                                  className="created-tooltip"
+                                >
+                                  Added {formatCreatedAt(todo.createdAt)}
+                                </span>
+                              </>
                             ) : null}
                             {todo.dueDate ? (
                               <span className="due-date">Due {formatDueDate(todo.dueDate)}</span>
