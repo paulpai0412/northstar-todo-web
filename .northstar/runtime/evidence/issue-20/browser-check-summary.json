@@ -1,0 +1,19 @@
+{
+  "ran": true,
+  "tests_passed": 7,
+  "checks": [
+    "keyboard focus lands on todo input",
+    "todo input focus ring introduces no layout shift (desktop)",
+    "keyboard focus lands on Add button",
+    "Add button focus ring introduces no layout shift (desktop)",
+    "keyboard focus lands on todo checkbox/label row",
+    "checkbox/label focus styling introduces no layout shift (desktop)",
+    "checkbox row focus styling introduces no layout shift (mobile)"
+  ],
+  "screenshots": [
+    "evidence/issue-20/focus-input-desktop.png",
+    "evidence/issue-20/focus-add-desktop.png",
+    "evidence/issue-20/focus-checkbox-desktop.png",
+    "evidence/issue-20/focus-mobile.png"
+  ]
+}

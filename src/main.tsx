@@ -9,6 +9,7 @@ import {
   getTodoProgress,
   getVisibleTodos,
   hasOverdueTodos,
+  getOverdueTodoCount,
   isTodoOverdue,
   normalizeTodos,
   toggleTodo,
@@ -68,7 +69,8 @@ function App() {
       ? "Completed todos are hidden."
       : getEmptyStateMessage(filter);
 
-  const hasOverdue = hasOverdueTodos(todos);
+  const overdueCount = getOverdueTodoCount(todos);
+  const hasOverdue = overdueCount > 0;
   const todayDueCount = countTodayDueTodos(todos);
 
   useEffect(() => {
@@ -199,7 +201,9 @@ function App() {
             <p className="progress-summary">
               {totalCount} total, {activeCount} active, {completedCount} completed
             </p>
-            {hasOverdue ? <p className="overdue-summary">Overdue todos need attention.</p> : null}
+            {overdueCount > 0 ? (
+              <p className="overdue-summary">{overdueCount} {overdueCount === 1 ? "todo is overdue" : "todos are overdue"}</p>
+            ) : null}
             {todayDueCount > 0 ? <p className="today-due-summary">Today due: {todayDueCount}</p> : null}
           </div>
 

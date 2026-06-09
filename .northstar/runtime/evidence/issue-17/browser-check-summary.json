@@ -1,0 +1,8 @@
+{
+  "titleVisible": true,
+  "completedBefore": "0 completed todos",
+  "completedAfter": "1 completed todo",
+  "totalCount": "2 total todos",
+  "activeCount": "1 item left",
+  "screenshotPath": "/home/timmypai/apps/northstar-todo-web/.northstar/runtime/evidence/issue-17/completed-count-toolbar.png"
+}

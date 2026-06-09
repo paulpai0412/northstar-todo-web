@@ -9,6 +9,7 @@ import {
   filterTodos,
   getEmptyStateMessage,
   getVisibleTodos,
+  completeVisibleTodos,
   getTodoProgress,
   getTodoCompletionRatio,
   getTodoPriorityCounts,
@@ -581,4 +582,41 @@ describe("todo core logic", () => {
     const sorted = sortVisibleTodos(todos);
     expect(sorted.map((t) => t.id)).toEqual(["b", "c", "a"]);
   });
+
+  it("completes only visible incomplete todos when bulk completing visible", () => {
+    const todos: Todo[] = [
+      { id: "a", text: "A", completed: false, priority: "high" },
+      { id: "b", text: "B", completed: false, priority: "normal" },
+      { id: "c", text: "C", completed: true, priority: "low" }
+    ];
+
+    const result = completeVisibleTodos(todos, ["a", "c"]);
+    expect(result).toEqual([
+      { id: "a", text: "A", completed: true, priority: "high" },
+      { id: "b", text: "B", completed: false, priority: "normal" },
+      { id: "c", text: "C", completed: true, priority: "low" }
+    ]);
+
+    // original array must not be mutated
+    expect(todos[0].completed).toBe(false);
+  });
+
+  it("does not change non-visible todos and leaves already completed todos untouched", () => {
+    const todos: Todo[] = [
+      { id: "x", text: "X", completed: false, priority: "normal" },
+      { id: "y", text: "Y", completed: false, priority: "normal" },
+      { id: "z", text: "Z", completed: true, priority: "normal" }
+    ];
+
+    const result = completeVisibleTodos(todos, ["y"]);
+    expect(result).toEqual([
+      { id: "x", text: "X", completed: false, priority: "normal" },
+      { id: "y", text: "Y", completed: true, priority: "normal" },
+      { id: "z", text: "Z", completed: true, priority: "normal" }
+    ]);
+
+    // original array must not be mutated
+    expect(todos[1].completed).toBe(false);
+  });
+
 });

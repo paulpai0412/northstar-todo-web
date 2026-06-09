@@ -163,6 +163,13 @@ export function sortVisibleTodos(todos: Todo[]): Todo[] {
   });
 }
 
+export function completeVisibleTodos(todos: Todo[], visibleIds: string[]): Todo[] {
+  const visibleSet = new Set(visibleIds);
+  return todos.map((todo) =>
+    visibleSet.has(todo.id) && !todo.completed ? { ...todo, completed: true } : todo
+  );
+}
+
 export function getEmptyStateMessage(filter: TodoFilter): string {
   if (filter === "active") {
     return "No active todos.";
