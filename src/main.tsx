@@ -71,7 +71,22 @@ function App() {
   const { total: totalCount, active: activeCount, completed: completedCount } =
     getTodoProgress(todos);
   const visibleTodos = getVisibleTodos(todos, filter, hideCompleted);
-  const renderedTodos = sortOn ? sortVisibleTodos(visibleTodos) : visibleTodos;
+  // When sorting is enabled and we're viewing the active filter, provide an
+  // alphabetical A→Z sort for the visible active items. Otherwise fall back
+  // to the existing sortVisibleTodos behavior when global sort is on.
+  const renderedTodos = (() => {
+    if (!sortOn) return visibleTodos;
+
+    if (filter === "active") {
+      // Sort active items alphabetically A→Z by text (case-insensitive).
+      return [...visibleTodos].sort((a, b) =>
+        a.text.localeCompare(b.text, undefined, { sensitivity: "base" })
+      );
+    }
+
+    return sortVisibleTodos(visibleTodos);
+  })();
+
   const visibleIncompleteIds = visibleTodos.filter((todo) => !todo.completed).map((todo) => todo.id);
   const canCompleteVisible = visibleIncompleteIds.length > 0;
   const emptyStateMessage =
