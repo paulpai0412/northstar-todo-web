@@ -23,6 +23,7 @@ import "./styles.css";
 
 const STORAGE_KEY = "northstar-todo-web.todos";
 const SORT_STORAGE_KEY = "northstar-todo-web.sort";
+const FILTER_STORAGE_KEY = "northstar-todo-web.filter";
 const FILTER_OPTIONS: { value: TodoFilter; label: string }[] = [
   { value: "all", label: "All" },
   { value: "active", label: "Active" },
@@ -46,7 +47,14 @@ function App() {
   const [dueDate, setDueDate] = useState("");
   const [priority, setPriority] = useState<TodoPriority>("normal");
   const [dependsOn, setDependsOn] = useState("");
-  const [filter, setFilter] = useState<TodoFilter>("all");
+  const [filter, setFilter] = useState<TodoFilter>(() => {
+    try {
+      const raw = localStorage.getItem(FILTER_STORAGE_KEY);
+      return raw ? (JSON.parse(raw) as TodoFilter) : "all";
+    } catch {
+      return "all";
+    }
+  });
   const [hideCompleted, setHideCompleted] = useState(false);
   const [sortOn, setSortOn] = useState<boolean>(() => {
     try {
@@ -82,6 +90,10 @@ function App() {
   useEffect(() => {
     localStorage.setItem(SORT_STORAGE_KEY, JSON.stringify(sortOn));
   }, [sortOn]);
+
+  useEffect(() => {
+    localStorage.setItem(FILTER_STORAGE_KEY, JSON.stringify(filter));
+  }, [filter]);
 
   useEffect(() => {
     document.title = activeCount === 0 ? "Todo Web" : `Todo Web (${activeCount} active)`;
