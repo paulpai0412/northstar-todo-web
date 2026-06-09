@@ -3,11 +3,13 @@ import { createRoot } from "react-dom/client";
 import {
   addTodo,
   clearCompletedTodos,
+  countTodayDueTodos,
   editTodoText,
   getEmptyStateMessage,
-  getOverdueTodoCount,
-  getVisibleTodos,
   getTodoProgress,
+  getVisibleTodos,
+  hasOverdueTodos,
+  getOverdueTodoCount,
   isTodoOverdue,
   normalizeTodos,
   toggleTodo,
@@ -62,11 +64,14 @@ function App() {
     getTodoProgress(todos);
   const visibleTodos = getVisibleTodos(todos, filter, hideCompleted);
   const renderedTodos = sortOn ? sortVisibleTodos(visibleTodos) : visibleTodos;
-  const overdueCount = getOverdueTodoCount(todos);
   const emptyStateMessage =
     hideCompleted && completedCount > 0 && filter !== "active"
       ? "Completed todos are hidden."
       : getEmptyStateMessage(filter);
+
+  const hasOverdue = hasOverdueTodos(todos);
+  const overdueCount = getOverdueTodoCount(todos);
+  const todayDueCount = countTodayDueTodos(todos);
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(todos));
@@ -197,10 +202,9 @@ function App() {
               {totalCount} total, {activeCount} active, {completedCount} completed
             </p>
             {overdueCount > 0 ? (
-              <p className="overdue-summary" aria-live="polite">
-                {overdueCount} {overdueCount === 1 ? "todo is" : "todos are"} overdue
-              </p>
+              <p className="overdue-summary">{overdueCount} {overdueCount === 1 ? "todo is overdue" : "todos are overdue"}</p>
             ) : null}
+            {todayDueCount > 0 ? <p className="today-due-summary">Today due: {todayDueCount}</p> : null}
           </div>
 
           <div className="filter-group" aria-label="Filter todos">
