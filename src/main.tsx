@@ -94,6 +94,11 @@ function App() {
   const overdueCount = getOverdueTodoCount(todos);
   const hasOverdue = overdueCount > 0;
   const todayDueCount = countTodayDueTodos(todos);
+  const footerGuidance = hoveredQuickAdd
+    ? `Quick-add helper: ${hoveredQuickAdd}`
+    : renderedTodos.length === 0
+      ? "Ready to start"
+      : "Keep momentum";
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(todos));
@@ -146,6 +151,7 @@ function App() {
       setDueDate("");
       setPriority("normal");
       setDependsOn("");
+      setHoveredQuickAdd(null);
     }
   }
 
@@ -448,9 +454,9 @@ function App() {
           )}
         </ul>
 
-        <footer className="todo-footer" aria-live="polite">
-          <p className="footer-summary">
-            {activeCount} active, {completedCount} completed
+        <footer className="todo-footer app-footer" aria-label="Status guidance" aria-live="polite">
+          <p className="footer-summary" data-testid="footer-summary">
+            {activeCount} active · {completedCount} completed · {footerGuidance}
           </p>
           <button
             type="button"

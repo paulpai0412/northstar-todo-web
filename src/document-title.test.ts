@@ -54,6 +54,10 @@ function toggleTodo(label: string) {
   checkbox.dispatchEvent(new MouseEvent("click", { bubbles: true }));
 }
 
+function queryFooterSummary() {
+  return document.querySelector('[data-testid="footer-summary"]') as HTMLElement | null;
+}
+
 describe("document title active-count sync", () => {
   beforeEach(() => {
     localStorage.clear();
@@ -91,4 +95,41 @@ describe("document title active-count sync", () => {
     await flushReact();
     expect(document.title).toBe("Todo Web");
   }, 20000);
+
+  it("keeps footer summary guidance aligned while title updates", async () => {
+    await renderApp();
+
+    expect(queryFooterSummary()?.textContent?.trim()).toBe("0 active · 0 completed · Ready to start");
+    expect(document.title).toBe("Todo Web");
+
+    await addTodoFromQuickAdd("Buy groceries");
+    await flushReact();
+    expect(document.title).toBe("Todo Web (1 active)");
+    expect(queryFooterSummary()?.textContent?.trim()).toBe("1 active · 0 completed · Keep momentum");
+
+    await addTodoFromQuickAdd("Review notes");
+    await flushReact();
+    expect(document.title).toBe("Todo Web (2 active)");
+    expect(queryFooterSummary()?.textContent?.trim()).toBe("2 active · 0 completed · Keep momentum");
+
+    toggleTodo("Buy groceries");
+    await flushReact();
+    expect(document.title).toBe("Todo Web (1 active)");
+    expect(queryFooterSummary()?.textContent?.trim()).toBe("1 active · 1 completed · Keep momentum");
+
+    toggleTodo("Buy groceries");
+    await flushReact();
+    expect(document.title).toBe("Todo Web (2 active)");
+
+    toggleTodo("Buy groceries");
+    toggleTodo("Review notes");
+    await flushReact();
+    expect(document.title).toBe("Todo Web");
+    expect(queryFooterSummary()?.textContent?.trim()).toBe("0 active · 2 completed · Keep momentum");
+
+    clickButton("Clear completed");
+    await flushReact();
+    expect(document.title).toBe("Todo Web");
+    expect(queryFooterSummary()?.textContent?.trim()).toBe("0 active · 0 completed · Ready to start");
+  }, 30000);
 });

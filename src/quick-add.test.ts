@@ -39,6 +39,10 @@ function queryHelperText() {
   return document.querySelector('[data-testid="ui-helper-slot"]') as HTMLElement | null;
 }
 
+function queryFooterSummary() {
+  return document.querySelector('[data-testid="footer-summary"]') as HTMLElement | null;
+}
+
 describe("quick-add examples", () => {
   beforeEach(() => {
     localStorage.clear();
@@ -279,7 +283,51 @@ describe("empty-state helper", () => {
       [...document.querySelectorAll('.todo-item .todo-text')].map((node) => node.textContent?.trim())
     ).toContain('Buy groceries');
 
-    const emptyHelper = document.querySelector(".empty-state .ui-helper-text");
+    const emptyHelper = document.querySelector('.empty-state .ui-helper-text');
     expect(emptyHelper).toBeNull();
+  });
+});
+
+describe("footer summary guidance", () => {
+  beforeEach(() => {
+    localStorage.clear();
+    document.body.innerHTML = "";
+  });
+
+  it("shows ready-to-start guidance when there are no todos", async () => {
+    await renderApp();
+
+    const footerSummary = queryFooterSummary();
+    expect(footerSummary).toBeTruthy();
+    expect(footerSummary?.textContent?.trim()).toBe("0 active · 0 completed · Ready to start");
+  });
+
+  it("replaces guidance with quick-add guidance on hover", async () => {
+    await renderApp();
+
+    const footerSummary = queryFooterSummary();
+    expect(footerSummary).toBeTruthy();
+    expect(footerSummary?.textContent?.trim()).toBe("0 active · 0 completed · Ready to start");
+
+    const quickAddButton = getButton('Buy groceries');
+    quickAddButton.dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(queryFooterSummary()?.textContent?.trim()).toBe("0 active · 0 completed · Quick-add helper: Buy groceries");
+
+    quickAddButton.dispatchEvent(new MouseEvent('mouseout', { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(queryFooterSummary()?.textContent?.trim()).toBe("0 active · 0 completed · Ready to start");
+  });
+
+  it("switches to momentum guidance once todos exist", async () => {
+    await renderApp();
+
+    clickButton('Buy groceries');
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    clickButton('Add');
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(queryFooterSummary()?.textContent?.trim()).toBe("1 active · 0 completed · Keep momentum");
   });
 });
