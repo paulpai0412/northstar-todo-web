@@ -29,6 +29,14 @@ describe("quick-add examples", () => {
     document.body.innerHTML = "";
   });
 
+  it("renders helper slot and does not break quick-add", async () => {
+    await renderApp();
+
+    const helper = document.querySelector('[data-testid="ui-helper-slot"]') as HTMLElement | null;
+    expect(helper).toBeTruthy();
+    expect(helper?.textContent?.trim()).toBeTruthy();
+  });
+
   it("fills the input from a quick-add example, keeps input focus, and adds normally", async () => {
     await renderApp();
 

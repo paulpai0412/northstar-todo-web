@@ -266,6 +266,9 @@ function App() {
               </button>
             ))}
           </div>
+          <p className="ui-helper-text" data-testid="ui-helper-slot">
+            Helpful guidance appears here.
+          </p>
         </form>
 
         <div className="todo-toolbar" aria-label="Todo controls">
