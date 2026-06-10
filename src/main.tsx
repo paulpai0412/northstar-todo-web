@@ -345,7 +345,10 @@ function App() {
 
         <ul className="todo-list" aria-label="Todo list">
           {renderedTodos.length === 0 ? (
-            <li className="empty-state">{emptyStateMessage}</li>
+            <li className="empty-state">
+              {emptyStateMessage}
+              <p className="ui-helper-text">Add one task above to get started quickly.</p>
+            </li>
           ) : (
             renderedTodos.map((todo) => {
               const overdue = isTodoOverdue(todo);

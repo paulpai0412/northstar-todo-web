@@ -195,3 +195,35 @@ describe("complete visible toolbar action", () => {
     expect(completedAfter).toBe(2);
   });
 });
+
+describe("empty-state helper", () => {
+  beforeEach(() => {
+    localStorage.clear();
+    document.body.innerHTML = "";
+  });
+
+  it("shows secondary helper text when list is empty", async () => {
+    await renderApp();
+
+    const emptyHelper = document.querySelector(".empty-state .ui-helper-text") as HTMLElement | null;
+
+    expect(emptyHelper).toBeTruthy();
+    expect(emptyHelper?.textContent?.trim()).toBe("Add one task above to get started quickly.");
+  });
+
+  it("hides secondary helper text when todos exist", async () => {
+    await renderApp();
+
+    clickButton('Buy groceries');
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    clickButton('Add');
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(
+      [...document.querySelectorAll('.todo-item .todo-text')].map((node) => node.textContent?.trim())
+    ).toContain('Buy groceries');
+
+    const emptyHelper = document.querySelector(".empty-state .ui-helper-text");
+    expect(emptyHelper).toBeNull();
+  });
+});
