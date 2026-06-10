@@ -67,6 +67,7 @@ function App() {
   });
   const [editingTodoId, setEditingTodoId] = useState<string | null>(null);
   const [editingTodoText, setEditingTodoText] = useState("");
+  const [hoveredQuickAdd, setHoveredQuickAdd] = useState<string | null>(null);
   const todoInputRef = useRef<HTMLInputElement>(null);
 
   // Shortcut hint state: shows on first visit unless dismissed
@@ -260,15 +261,30 @@ function App() {
                 onClick={() => {
                   setTodoText(example);
                   todoInputRef.current?.focus();
+                  setHoveredQuickAdd(example);
+                }}
+                onMouseEnter={() => setHoveredQuickAdd(example)}
+                onMouseLeave={() => {
+                  setHoveredQuickAdd((currentHovered) =>
+                    currentHovered === example ? null : currentHovered
+                  );
+                }}
+                onFocus={() => setHoveredQuickAdd(example)}
+                onBlur={() => {
+                  setHoveredQuickAdd((currentHovered) =>
+                    currentHovered === example ? null : currentHovered
+                  );
                 }}
               >
                 {example}
               </button>
             ))}
           </div>
-          <p className="ui-helper-text" data-testid="ui-helper-slot">
-            Helpful guidance appears here.
-          </p>
+          {hoveredQuickAdd ? (
+            <p className="ui-helper-text" data-testid="ui-helper-slot">
+              Click to prefill: {hoveredQuickAdd}
+            </p>
+          ) : null}
         </form>
 
         <div className="todo-toolbar" aria-label="Todo controls">

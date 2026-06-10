@@ -23,18 +23,74 @@ function clickButton(label: string) {
   button.dispatchEvent(new MouseEvent("click", { bubbles: true }));
 }
 
+function getButton(label: string) {
+  const button = [...document.querySelectorAll("button")].find(
+    (element) => element.textContent?.trim() === label
+  ) as HTMLButtonElement | undefined;
+
+  if (!button) {
+    throw new Error(`Button not found: ${label}`);
+  }
+
+  return button;
+}
+
+function queryHelperText() {
+  return document.querySelector('[data-testid="ui-helper-slot"]') as HTMLElement | null;
+}
+
 describe("quick-add examples", () => {
   beforeEach(() => {
     localStorage.clear();
     document.body.innerHTML = "";
   });
 
-  it("renders helper slot and does not break quick-add", async () => {
+  it("hides helper text by default and keeps quick-add clickable", async () => {
     await renderApp();
 
-    const helper = document.querySelector('[data-testid="ui-helper-slot"]') as HTMLElement | null;
-    expect(helper).toBeTruthy();
-    expect(helper?.textContent?.trim()).toBeTruthy();
+    expect(queryHelperText()).toBeNull();
+
+    const input = document.getElementById("todo-input") as HTMLInputElement;
+    expect(input).toBeTruthy();
+
+    clickButton("Buy groceries");
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(input.value).toBe("Buy groceries");
+  });
+
+  it("shows helper text on quick-add hover and hides on pointer leave", async () => {
+    await renderApp();
+
+    const buyButton = getButton("Buy groceries");
+    buyButton.dispatchEvent(new MouseEvent("mouseover", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const helperAfterHover = queryHelperText();
+    expect(helperAfterHover).toBeTruthy();
+    expect(helperAfterHover?.textContent).toBe("Click to prefill: Buy groceries");
+
+    buyButton.dispatchEvent(new MouseEvent("mouseout", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(queryHelperText()).toBeNull();
+  });
+
+  it("shows helper text on quick-add focus and hides on blur", async () => {
+    await renderApp();
+
+    const reviewButton = getButton("Review notes");
+    reviewButton.dispatchEvent(new FocusEvent("focusin", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const helperAfterFocus = queryHelperText();
+    expect(helperAfterFocus).toBeTruthy();
+    expect(helperAfterFocus?.textContent).toBe("Click to prefill: Review notes");
+
+    reviewButton.dispatchEvent(new FocusEvent("focusout", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(queryHelperText()).toBeNull();
   });
 
   it("fills the input from a quick-add example, keeps input focus, and adds normally", async () => {
